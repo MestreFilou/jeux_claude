@@ -22,4 +22,8 @@ namespace ThermidorSets
 
 	FSetResult BuildComite(UWorld* World, TArray<AActor*>& Out);
 	FSetResult BuildPlace(UWorld* World, TArray<AActor*>& Out, const UDialogueSubsystem* Dialogue);
+	FSetResult BuildCave(UWorld* World, TArray<AActor*>& Out, const UDialogueSubsystem* Dialogue);
+	FSetResult BuildBureauVadier(UWorld* World, TArray<AActor*>& Out);
+	FSetResult BuildConvention(UWorld* World, TArray<AActor*>& Out);
+	FSetResult BuildGreve(UWorld* World, TArray<AActor*>& Out, const UDialogueSubsystem* Dialogue);
 }

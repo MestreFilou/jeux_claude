@@ -1,0 +1,203 @@
+// Scène 04 : la Convention, 9 thermidor an II
+// Historique (séance du 9 thermidor, salle des Machines aux Tuileries) :
+// Saint-Just commence « Je ne suis d'aucune faction ; je les combattrai toutes. »
+// Tallien l'interrompt et demande que « le rideau soit entièrement déchiré ».
+// Robespierre ne peut pas parler, couvert par « À bas le tyran ! ».
+// Garnier de l'Aube lui lance « Le sang de Danton t'étouffe ! ».
+// Augustin Robespierre demande à partager le sort de son frère. L'arrestation est votée.
+
+"dialogue"
+{
+	"id"	"scene04"
+	"title"	"La Convention, salle des Machines, 9 thermidor an II, midi"
+	"start"	"tribune"
+	"next"	"scene05"
+
+	"nodes"
+	{
+		"tribune"
+		{
+			"music"	"Musique.Convention"
+			"line"	{ "speaker" "narrateur" "text" "La salle est immense, ancien théâtre des rois, tendue de vert. En bas, sept cents députés sur des gradins. En haut, dans les tribunes, le peuple de Paris s'entasse : sans-culottes, tricoteuses, curieux, mouchards." }
+			"line"	{ "speaker" "narrateur" "text" "Il fait une chaleur de four. Un orage gronde quelque part au-dessus de la Seine." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Tout en haut de la Montagne, un homme pâle, en habit bleu ciel, poudré avec soin, qui ne regarde personne. Robespierre." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Les gradins sont pleins. Les places vides aussi : Danton, Desmoulins, Vergniaud. Ils sont venus voir." }
+			"line"	{ "speaker" "narrateur" "require" "porte_lettre" "text" "La lettre cachetée te brûle la poitrine sous le gilet." }
+			"line"	{ "speaker" "narrateur" "require" "faux_rapport" "text" "De l'autre côté de la salle, Vadier t'a vu. Il te fait un petit signe de tête, comme à un vieil ami." }
+			"choice"	{ "text" "Regarder autour de toi." "goto" "galerie" }
+		}
+
+		"galerie"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "text" "La séance n'a pas commencé. On parle bas, on s'évente avec des journaux." }
+			"choice"	{ "text" "Descendre vers les gradins pour trouver Tallien." "goto" "couloir" "require" "porte_lettre" "unless" "lettre_traitee" }
+			"choice"	{ "text" "Écouter les sans-culottes à côté de toi." "goto" "voisins" "unless" "voisins_vus" }
+			"choice"	{ "text" "Attendre l'ouverture de la séance." "goto" "seance" }
+		}
+
+		"voisins"
+		{
+			"set"	"voisins_vus"
+			"line"	{ "speaker" "sansculotte" "text" "Si on touche à Robespierre, la Commune sonnera le tocsin. Hanriot a des canons. On verra bien qui gouverne." }
+			"line"	{ "speaker" "tricoteuse" "text" "Moi je dis qu'il y en a trop, des charrettes. Ma voisine y est passée pour un mot de travers. Une couturière." }
+			"line"	{ "speaker" "sansculotte" "text" "Tais-toi donc, citoyenne. Il y a des oreilles partout." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Ils ont peur tous les deux, chacun d'une chose différente. Le peuple de Paris est fatigué." }
+			"choice"	{ "text" "Revenir à ta place." "goto" "galerie" }
+		}
+
+		"couloir"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Un escalier étroit, puis un couloir derrière les gradins. Un huissier en habit noir te barre la route." }
+			"line"	{ "speaker" "huissier" "text" "Les tribunes, c'est en haut, citoyen. Ici, c'est la représentation nationale." }
+			"choice"	{ "text" "Montrer ton écharpe : « Commissaire de la section des Piques. Affaire du Comité. »" "goto" "couloir_ok" "require" "carte" }
+			"choice"	{ "text" "L'impressionner : « Tu veux expliquer au Comité pourquoi tu m'as retardé ? »" "check" "ferveur" "difficulty" "10" "type" "rouge" "success" "couloir_ok" "failure" "couloir_rate" }
+			"choice"	{ "text" "Remonter." "goto" "galerie" }
+		}
+
+		"couloir_rate"
+		{
+			"set"	"lettre_traitee"
+			"line"	{ "speaker" "huissier" "text" "Le Comité ? Lequel ? Il y en a deux, et ils se détestent. Remonte, citoyen, ou j'appelle la garde." }
+			"line"	{ "speaker" "narrateur" "text" "La lettre reste sous ton gilet. Tallien ne la lira pas." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter." "goto" "galerie" }
+		}
+
+		"couloir_ok"
+		{
+			"line"	{ "speaker" "narrateur" "text" "L'huissier s'efface. Au bout du couloir, un homme de trente ans, beau, nerveux, qui triture quelque chose sous sa redingote. Tallien." }
+			"line"	{ "speaker" "narrateur" "require" "double_jeu" "text" "Plus loin, près de la porte du Comité de salut public, un secrétaire de Saint-Just range des papiers." }
+			"choice"	{ "text" "Remettre la lettre à Tallien." "goto" "lettre_tallien" }
+			"choice"	{ "text" "Remettre la lettre au secrétaire de Saint-Just." "goto" "lettre_saintjust" "require" "double_jeu" }
+			"choice"	{ "text" "Garder la lettre et remonter." "goto" "lettre_gardee" }
+		}
+
+		"lettre_tallien"
+		{
+			"set"	"lettre_traitee"
+			"set"	"lettre_remise"
+			"line"	{ "speaker" "narrateur" "text" "Tallien brise le cachet, lit. Son visage se vide de toute couleur, puis se remplit d'autre chose." }
+			"line"	{ "speaker" "tallien" "text" "Elle croit que je suis un lâche. Bien. Aujourd'hui, elle verra." }
+			"line"	{ "speaker" "narrateur" "text" "Sous sa redingote, tu aperçois l'éclat d'un poignard." }
+			"line"	{ "speaker" "logique" "text" "Tu viens de pousser l'Histoire d'un doigt. Elle penchait déjà. Tu ne sauras jamais si ton doigt comptait." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"lettre_saintjust"
+		{
+			"set"	"lettre_traitee"
+			"set"	"lettre_livree"
+			"line"	{ "speaker" "narrateur" "text" "Le secrétaire prend la lettre, la lit, siffle entre ses dents." }
+			"line"	{ "speaker" "secretaire" "text" "Une lettre de la Cabarrus à Tallien. Saint-Just va adorer. Ton nom, citoyen ?" }
+			"line"	{ "speaker" "ferveur" "text" "LE DEVOIR EST ACCOMPLI. LA VERTU TRIOMPHERA." }
+			"line"	{ "speaker" "spectres" "require" "marie_libre" "text" "Quelque part, dans une cave qui sent le café brûlé, Marie-Anne attend que tu reviennes vivant." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"lettre_gardee"
+		{
+			"set"	"lettre_traitee"
+			"line"	{ "speaker" "volonte" "text" "Ni pour l'un, ni pour l'autre. La lettre reste contre ta peau. Tu la brûleras ce soir, ou tu la garderas toute ta vie." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"seance"
+		{
+			"music"	"Musique.Tension"
+			"line"	{ "speaker" "narrateur" "text" "Un jeune homme très droit monte à la tribune. Vingt-six ans, une haute cravate, un visage de marbre. Saint-Just." }
+			"line"	{ "speaker" "saintjust" "text" "Je ne suis d'aucune faction ; je les combattrai toutes." }
+			"line"	{ "speaker" "narrateur" "text" "Il n'a pas fini sa troisième phrase. Tallien bondit." }
+			"line"	{ "speaker" "tallien" "text" "Hier, un membre du gouvernement s'en est isolé. Aujourd'hui, un autre fait de même. Je demande que le rideau soit entièrement déchiré !" }
+			"line"	{ "speaker" "narrateur" "require" "lettre_remise" "text" "Il brandit le poignard. Les tribunes hurlent. Tu sais quelle lettre tient ce bras levé." }
+			"line"	{ "speaker" "narrateur" "require" "lettre_livree" "text" "Il parle vite, très vite. Comme un homme qui sait qu'on a lu son courrier et qu'il n'a plus rien à perdre." }
+			"line"	{ "speaker" "narrateur" "text" "Applaudissements. Billaud-Varenne enchaîne. Robespierre se lève, s'avance vers la tribune." }
+			"choice"	{ "text" "Regarder Robespierre." "goto" "robespierre" }
+		}
+
+		"robespierre"
+		{
+			"line"	{ "speaker" "robespierre" "text" "Je demande la parole !" }
+			"line"	{ "speaker" "assemblee" "text" "À bas le tyran ! À bas le tyran !" }
+			"line"	{ "speaker" "narrateur" "text" "Le président agite sa sonnette. Il ne donne pas la parole à Robespierre. Robespierre crie, sa voix se casse." }
+			"line"	{ "speaker" "garnier" "text" "Le sang de Danton t'étouffe !" }
+			"line"	{ "speaker" "robespierre" "text" "Lâches ! Pourquoi ne l'avez-vous pas défendu ?" }
+			"line"	{ "speaker" "spectres" "text" "Dans la tribune d'en face, tu jurerais voir un grand homme au visage grêlé qui sourit sans joie." }
+			"line"	{ "speaker" "ferveur" "text" "ILS ASSASSINENT LA VERTU ! CRIE ! DÉFENDS-LE !" }
+			"line"	{ "speaker" "narrateur" "text" "Autour de toi, les tribunes hésitent. Quelques voix pour lui. Beaucoup contre. La plupart se taisent et regardent leurs pieds." }
+			"choice"	{ "text" "Crier avec la salle : « À bas le tyran ! »" "goto" "cri_tyran" }
+			"choice"	{ "text" "Crier : « Vive Robespierre ! Vive la Commune ! »" "check" "volonte" "difficulty" "10" "type" "rouge" "success" "cri_robespierre_ok" "failure" "cri_robespierre_rate" }
+			"choice"	{ "text" "Descendre à la barre témoigner, comme Vadier te l'a demandé." "check" "rhetorique" "difficulty" "11" "type" "rouge" "success" "temoin_ok" "failure" "temoin_rate" "require" "faux_rapport" }
+			"choice"	{ "text" "Te taire. Regarder." "goto" "silence" }
+		}
+
+		"cri_tyran"
+		{
+			"set"	"crie_tyran"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix se perd dans la clameur. Personne ne l'entend. Toi, si." }
+			"line"	{ "speaker" "ferveur" "text" "TRAÎTRE..." }
+			"line"	{ "speaker" "volonte" "text" "La voix de la Révolution, dans ta tête, vient de baisser d'un ton. Pour la première fois." }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"cri_robespierre_ok"
+		{
+			"set"	"crie_robespierre"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix porte. Une dizaine d'hommes autour de toi reprennent : « Vive Robespierre ! » Un gendarme lève la tête vers votre tribune et note quelque chose." }
+			"line"	{ "speaker" "ferveur" "text" "OUI ! OUI ! LA VERTU N'EST PAS SEULE !" }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"cri_robespierre_rate"
+		{
+			"set"	"crie_robespierre"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix sort étranglée, à contretemps. Un sans-culotte te pousse du coude : « Ferme-la, tu vas nous faire tous raccourcir. »" }
+			"morale"	"-1"
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"temoin_ok"
+		{
+			"set"	"temoin"
+			"line"	{ "speaker" "narrateur" "text" "Tu descends. On te pousse à la barre. Tu répètes ton rapport : l'argent, les suspects relâchés, les hommes de Robespierre. Ta voix ne tremble pas." }
+			"line"	{ "speaker" "narrateur" "text" "Vadier hoche la tête. Des députés notent. Tu viens d'ajouter une pierre au tombeau d'un homme vivant." }
+			"line"	{ "speaker" "spectres" "text" "Il te regarde. Une seconde. Ses yeux verts derrière les lunettes. Il ne sait pas qui tu es. Il ne le saura jamais." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter, sans regarder personne." "goto" "vote" }
+		}
+
+		"temoin_rate"
+		{
+			"set"	"temoin"
+			"line"	{ "speaker" "narrateur" "text" "À la barre, les mots se dérobent. Tu bégaies, tu te contredis. Des rires dans les tribunes. On te renvoie d'un geste." }
+			"line"	{ "speaker" "narrateur" "text" "Vadier ne te regarde plus. C'est pire." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter." "goto" "vote" }
+		}
+
+		"silence"
+		{
+			"set"	"silencieux"
+			"line"	{ "speaker" "narrateur" "text" "Tu te tais. Tu regardes. Comme les autres." }
+			"line"	{ "speaker" "empathie" "text" "Le sans-culotte à côté de toi pleure sans bruit. Tu ne sais pas pour qui." }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"vote"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Un député obscur, Louchet, demande le décret d'arrestation. La salle se lève et applaudit." }
+			"line"	{ "speaker" "augustin" "text" "Je suis aussi coupable que mon frère. Je partage ses vertus, je veux partager son sort !" }
+			"line"	{ "speaker" "narrateur" "text" "Saint-Just, Couthon, Le Bas suivent. Les gendarmes les emmènent. Il est un peu plus de cinq heures. Dehors, l'orage éclate enfin." }
+			"line"	{ "speaker" "sansculotte" "text" "La Commune ne laissera pas faire. Ce soir, on sonne le tocsin à l'Hôtel de Ville." }
+			"line"	{ "speaker" "logique" "text" "Ce n'est pas fini. Ce soir, Paris choisira : la Convention ou la Commune. Et toi aussi." }
+			"choice"	{ "text" "Sortir sous l'orage." "goto" "fin" }
+		}
+
+		"fin"
+		{
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La pluie lave les marches des Tuileries. Les tambours de la Commune battent déjà quelque part vers l'Hôtel de Ville." }
+			"end"	"1"
+		}
+	}
+}

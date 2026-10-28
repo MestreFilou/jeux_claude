@@ -10,6 +10,17 @@ commente la scène, et les tests se règlent avec 2d6 + le niveau de la compéte
 
 Moteur visé : Unreal Engine 5, en vue à la première personne.
 
+## L'histoire en cinq scènes
+
+| Scène | Lieu | Ce qui s'y joue |
+| --- | --- | --- |
+| 1 | Bureau du comité de section, 8 thermidor à l'aube | Se souvenir, décider du sort de Marie-Anne Delorme. |
+| 2 | Place de la Révolution | La foule, l'échafaud, le citoyen Mercier. Mène au Comité ou à la cave. |
+| 3a | Cave de la rue de la Sourdière | Les imprimeurs clandestins et la lettre pour Tallien. |
+| 3b | Comité de sûreté générale | Vadier et le faux rapport contre Robespierre. |
+| 4 | La Convention, 9 thermidor | La chute de Robespierre, vue des tribunes et des couloirs. |
+| 5 | Place de Grève, nuit du 9 au 10 | L'Hôtel de Ville, l'appel à la section des Piques. Quatre fins. |
+
 ## Contenu du dépôt
 
 | Dossier | Contenu |
@@ -37,7 +48,7 @@ le code n'a pas encore pu être compilé, il faudra sans doute quelques correcti
 ### Musique
 
 Importer les pistes dans `Content/Audio` avec ces noms : `Musique_Reveil`, `Musique_Place`,
-`Musique_Tension`, `Musique_Fin`. Tant qu'un fichier manque, la scène reste silencieuse.
+`Musique_Tension`, `Musique_Cave`, `Musique_Comite`, `Musique_Convention`, `Musique_Greve`, `Musique_Fin`. Tant qu'un fichier manque, la scène reste silencieuse.
 
 ### Comment le code est organisé
 
@@ -66,6 +77,7 @@ puis ouvrir `prototype/index.html` dans un navigateur. Les touches 1 à 9 choisi
 - **Test blanc** : retentable après avoir monté la compétence. **Test rouge** : une seule chance.
 - **Test passif** : niveau + 6 ≥ difficulté, sans dé. S'il passe, la compétence parle d'elle-même.
 - **Jauges** : Santé (Endurance + 2) et Moral (Volonté + 2). À zéro, la partie s'arrête.
+- **Répit** : entre deux scènes, on regagne 1 point de santé et 1 point de moral.
 - **Progression** : 1 point d'expérience par test réussi, 2 par fin de scène. Tous les 3 points, une compétence monte de 1.
 
 ## Compétences

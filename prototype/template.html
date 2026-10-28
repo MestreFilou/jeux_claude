@@ -190,10 +190,28 @@ const MUSIC = {
   'Musique.Place': 'tambour lent, cordes frottées, « Ça ira » déformé au loin',
   'Musique.Tension': 'percussions sèches et cordes en trémolo',
   'Musique.Fin': 'accord suspendu, conclusion ouverte',
+  'Musique.Cave': 'presse qui grince, contrebasse sourde',
+  'Musique.Comite': 'clavecin désaccordé, horloge',
+  'Musique.Convention': 'rumeur de foule, orage lointain, cuivres graves',
+  'Musique.Greve': "pluie, tocsin, tambours qui s'éloignent",
 };
 const SPEAKERS = {
   marie: ['Marie-Anne Delorme', 'npc'], messager: ['Estafette du Comité', 'radio'], crieur: ['Crieur public', 'kessel'],
   porteur: ["Le porteur d'eau", 'npc'], mercier: ['Brutus Mercier', 'npc'],
+  anselme: ['Anselme Roux', 'npc'],
+  vadier: ['Vadier', 'npc'],
+  sansculotte: ['Un sans-culotte', 'npc'],
+  tricoteuse: ['Une tricoteuse', 'npc'],
+  huissier: ["L'huissier", 'radio'],
+  tallien: ['Tallien', 'npc'],
+  secretaire: ['Le secrétaire', 'npc'],
+  saintjust: ['Saint-Just', 'radio'],
+  robespierre: ['Robespierre', 'npc'],
+  assemblee: ["L'Assemblée", 'radio'],
+  garnier: ["Garnier de l'Aube", 'npc'],
+  augustin: ['Augustin Robespierre', 'npc'],
+  piquier: ['Un homme des Piques', 'npc'],
+  guichetier: ['Le guichetier', 'radio'],
 };
 const XP_PER_POINT = 3;
 const diffName = d => d <= 6 ? 'Trivial' : d <= 8 ? 'Facile' : d <= 10 ? 'Moyen' : d <= 12 ? 'Difficile' : d <= 14 ? 'Redoutable' : 'Héroïque';
@@ -215,9 +233,12 @@ function newGame(arch) {
   startScene(ORDER[0]);
 }
 function startScene(id) {
+  // Répit entre deux scènes : +1 santé, +1 moral.
+  if (S.scene && S.scene.id !== id) { S.health = Math.min(S.maxH, S.health + 1); S.morale = Math.min(S.maxM, S.morale + 1); }
   S.scene = SCENES[id];
   $('log').innerHTML = '';
-  $('sceneTitle').textContent = `Scène ${ORDER.indexOf(id) + 1} · ${S.scene.title}`;
+  const num = (id.match(/scene0*(\d+)/) || [])[1] || (ORDER.indexOf(id) + 1);
+  $('sceneTitle').textContent = `Scène ${num} · ${S.scene.title}`;
   renderDossier(); enter(S.scene.start);
 }
 const passes = pairs => getAll(pairs, 'require').every(f => S.flags.has(f)) && !getAll(pairs, 'unless').some(f => S.flags.has(f));
@@ -272,7 +293,7 @@ function enter(id) {
     else if (k === 'line' && passes(v)) say(v);
   }
   if (S.over) return;
-  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', S.scene.next); }
+  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', get(node, 'next') || S.scene.next); }
   renderChoices();
 }
 
@@ -323,7 +344,7 @@ function choose(c, key) {
 function endPanel(title, next) {
   $('choices').innerHTML = '';
   const nextBtn = next && SCENES[next] ? `<button class="ghost" type="button" id="nextScene">Scène suivante : ${esc(SCENES[next].title)}</button>` : '';
-  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du prototype. La suite n'est pas encore écrite.</span>` : '');
+  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du jeu.</span>` : '');
   add(`<div class="end"><b>${title}</b>${more}<span>Ce que le jeu retient : ${[...S.flags].filter(f => !f.startsWith('vu_')).map(esc).join(', ') || 'rien'}.</span><div class="toolbar">${nextBtn}<button class="ghost" type="button" id="replay">Rejouer avec un autre agent</button></div></div>`);
   if (nextBtn) $('nextScene').onclick = () => startScene(next);
   $('replay').onclick = showStart;

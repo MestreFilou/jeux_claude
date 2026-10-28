@@ -83,6 +83,22 @@ void AThermidorGameMode::BuildSet(FName SceneId)
 	{
 		Result = ThermidorSets::BuildPlace(GetWorld(), Spawned, Dialogue);
 	}
+	else if (SceneId == TEXT("scene03_cave"))
+	{
+		Result = ThermidorSets::BuildCave(GetWorld(), Spawned, Dialogue);
+	}
+	else if (SceneId == TEXT("scene03_comite"))
+	{
+		Result = ThermidorSets::BuildBureauVadier(GetWorld(), Spawned);
+	}
+	else if (SceneId == TEXT("scene04"))
+	{
+		Result = ThermidorSets::BuildConvention(GetWorld(), Spawned);
+	}
+	else if (SceneId == TEXT("scene05"))
+	{
+		Result = ThermidorSets::BuildGreve(GetWorld(), Spawned, Dialogue);
+	}
 	else
 	{
 		UE_LOG(LogThermidor, Warning, TEXT("Pas de décor pour la scène %s : on garde le vide."), *SceneId.ToString());

@@ -65,11 +65,29 @@ void UDialogueSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Speakers.Add(TEXT("crieur"), FSpeaker(TEXT("Crieur public"), EDialogueLineKind::Official));
 	Speakers.Add(TEXT("porteur"), FSpeaker(TEXT("Le porteur d'eau"), EDialogueLineKind::Character));
 	Speakers.Add(TEXT("mercier"), FSpeaker(TEXT("Brutus Mercier"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("anselme"), FSpeaker(TEXT("Anselme Roux"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("vadier"), FSpeaker(TEXT("Vadier"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("sansculotte"), FSpeaker(TEXT("Un sans-culotte"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("tricoteuse"), FSpeaker(TEXT("Une tricoteuse"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("huissier"), FSpeaker(TEXT("L'huissier"), EDialogueLineKind::Official));
+	Speakers.Add(TEXT("tallien"), FSpeaker(TEXT("Tallien"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("secretaire"), FSpeaker(TEXT("Le secrétaire"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("saintjust"), FSpeaker(TEXT("Saint-Just"), EDialogueLineKind::Official));
+	Speakers.Add(TEXT("robespierre"), FSpeaker(TEXT("Robespierre"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("assemblee"), FSpeaker(TEXT("L'Assemblée"), EDialogueLineKind::Official));
+	Speakers.Add(TEXT("garnier"), FSpeaker(TEXT("Garnier de l'Aube"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("augustin"), FSpeaker(TEXT("Augustin Robespierre"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("piquier"), FSpeaker(TEXT("Un homme des Piques"), EDialogueLineKind::Character));
+	Speakers.Add(TEXT("guichetier"), FSpeaker(TEXT("Le guichetier"), EDialogueLineKind::Official));
 
 	MusicDescriptions.Add(TEXT("Musique.Reveil"),  TEXT("violoncelle seul et nappe grave"));
 	MusicDescriptions.Add(TEXT("Musique.Place"),   TEXT("tambour lent, cordes frottées, « Ça ira » déformé"));
 	MusicDescriptions.Add(TEXT("Musique.Tension"), TEXT("percussions sèches, cordes en trémolo"));
 	MusicDescriptions.Add(TEXT("Musique.Fin"),     TEXT("accord suspendu"));
+	MusicDescriptions.Add(TEXT("Musique.Cave"), TEXT("presse qui grince, contrebasse sourde"));
+	MusicDescriptions.Add(TEXT("Musique.Comite"), TEXT("clavecin désaccordé, horloge"));
+	MusicDescriptions.Add(TEXT("Musique.Convention"), TEXT("rumeur de foule, orage lointain, cuivres graves"));
+	MusicDescriptions.Add(TEXT("Musique.Greve"), TEXT("pluie, tocsin, tambours qui s'éloignent"));
 
 	LoadScenes();
 }
@@ -156,6 +174,7 @@ void UDialogueSubsystem::NewGame(int32 ArchetypeIndex)
 	Points = 0;
 	bGameOver = false;
 	bInGame = true;
+	CurrentScene = NAME_None;
 	StartScene(GetFirstSceneId());
 }
 
@@ -177,6 +196,12 @@ bool UDialogueSubsystem::StartScene(FName SceneId)
 	{
 		UE_LOG(LogThermidor, Error, TEXT("Scène introuvable : %s"), *SceneId.ToString());
 		return false;
+	}
+	// Répit entre deux scènes : on regagne 1 point de santé et 1 point de moral.
+	if (!CurrentScene.IsNone() && CurrentScene != SceneId)
+	{
+		Health = FMath::Min(MaxHealth, Health + 1);
+		Morale = FMath::Min(MaxMorale, Morale + 1);
 	}
 	CurrentScene = SceneId;
 	NextScene = Scene->Next;

@@ -1,0 +1,154 @@
+// Scène 03 (version Comité) : le Comité de sûreté générale
+// On y arrive après la fin « Comité » de la scène 02.
+// Historique : le Comité de sûreté générale, qui siège à l'hôtel de Brionne,
+// déteste Robespierre. Vadier, l'un de ses membres, s'est moqué de lui en juin
+// avec l'affaire Catherine Théot, une illuminée qui voyait en Robespierre un messie.
+// La section des Piques est celle où vit Robespierre.
+
+"dialogue"
+{
+	"id"	"scene03_comite"
+	"title"	"Comité de sûreté générale, hôtel de Brionne, 8 thermidor an II, 9 h"
+	"start"	"antichambre"
+	"next"	"scene04"
+
+	"nodes"
+	{
+		"antichambre"
+		{
+			"music"	"Musique.Comite"
+			"line"	{ "speaker" "narrateur" "text" "Une antichambre dorée qui a appartenu à un prince. Les dorures sont restées, le prince non. Sur les banquettes, des gens attendent sans parler, un papier serré dans les mains." }
+			"line"	{ "speaker" "narrateur" "require" "suspect" "text" "Mercier s'éloigne vers un huissier et lui glisse quelques mots à l'oreille. L'huissier te regarde." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Sur les banquettes, il y a plus de monde que tu ne crois. Certains n'ont plus de tête et attendent quand même leur tour." }
+			"line"	{ "speaker" "narrateur" "text" "Une porte s'ouvre. Un vieil homme maigre, au visage creusé, te fait signe d'entrer d'un doigt." }
+			"choice"	{ "text" "Entrer." "goto" "bureau" }
+		}
+
+		"bureau"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "unless" "vu_bureau_csg" "text" "Un grand bureau couvert de dossiers ficelés. Une fenêtre sur les Tuileries. Le vieil homme s'assoit, croise ses mains osseuses et te regarde avec amusement." }
+			"line"	{ "speaker" "vadier" "unless" "vu_bureau_csg" "text" "Vadier, du Comité de sûreté générale. Assieds-toi, commissaire Lacombe. Section des Piques, n'est-ce pas ? La section de l'Incorruptible. Quel honneur." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau_csg" "text" "Sur le dossier du dessus, une étiquette : « Théot, Catherine, dite la Mère de Dieu ». Il l'a laissé là exprès, pour que tu le voies." }
+			"line"	{ "speaker" "vadier" "require" "vu_bureau_csg" "text" "Alors, commissaire ? J'ai tout mon temps. Enfin, jusqu'à demain." }
+			"set"	"vu_bureau_csg"
+			"choice"	{ "text" "Faire ton rapport sur la suspecte Delorme." "goto" "rapport" "unless" "rapport_fait" }
+			"choice"	{ "text" "« Que voulez-vous vraiment, citoyen ? »" "goto" "vadier_veut" "unless" "vadier_veut" }
+			"choice"	{ "text" "Regarder les dossiers sur le bureau." "goto" "dossiers" "unless" "dossiers_vus" }
+			"choice"	{ "text" "Donner ta réponse à Vadier." "goto" "decision" "require" "vadier_veut" }
+		}
+
+		"rapport"
+		{
+			"set"	"rapport_fait"
+			"line"	{ "speaker" "vadier" "require" "marie_livree" "text" "La Delorme ? Elle est déjà à la Conciergerie, on me l'a dit. Une lingère qui imprime. Le Tribunal s'en occupera en dix minutes. Ce n'est pas pour ça que je t'ai fait venir." }
+			"line"	{ "speaker" "vadier" "require" "marie_libre" "text" "La Delorme ? Envolée, d'après ton ami Mercier. Tu l'as relâchée. Un commissaire de la section de Robespierre qui relâche des imprimeuses... Comme c'est intéressant." }
+			"line"	{ "speaker" "vadier" "require" "marie_attachee" "text" "La Delorme ? Mercier dit qu'il l'a trouvée ficelée dans ta salle, et toi en train de pleurer sur ton écharpe. Tu es un drôle de commissaire." }
+			"line"	{ "speaker" "logique" "text" "Il connaît déjà toute l'histoire. Ton rapport ne l'intéresse pas. C'est toi qui l'intéresses." }
+			"choice"	{ "text" "Continuer." "goto" "bureau" }
+		}
+
+		"vadier_veut"
+		{
+			"set"	"vadier_veut"
+			"line"	{ "speaker" "vadier" "text" "Ce que je veux ? Que la République survive à ses prophètes." }
+			"line"	{ "speaker" "vadier" "text" "Demain, Robespierre va parler encore. Il a une liste, tout Paris le sait. Mon nom y est peut-être. Le tien aussi, depuis cette nuit." }
+			"line"	{ "speaker" "vadier" "text" "Je te propose ceci : tu signes un rapport. Tu y écris que des hommes de Robespierre t'ont ordonné de relâcher des suspects de ta section, contre de l'argent. Avec ce papier, demain, je fais taire l'Incorruptible." }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "9" "text" "Il dit « je te propose ». Il veut dire « je t'ordonne ». Et derrière les deux, il y a la charrette." }
+			"line"	{ "speaker" "ferveur" "text" "CALOMNIE CONTRE L'INCORRUPTIBLE ! REFUSE !" }
+			"choice"	{ "text" "Continuer." "goto" "bureau" }
+		}
+
+		"dossiers"
+		{
+			"set"	"dossiers_vus"
+			"line"	{ "speaker" "narrateur" "text" "Tu tires vers toi la pile de dossiers. Vadier ne t'en empêche pas." }
+			"line"	{ "speaker" "narrateur" "text" "Des noms, des dates, des adresses. Des signatures au bas de dénonciations : voisins, cousins, domestiques. Paris entier se surveille et s'écrit." }
+			"choice"	{ "text" "Chercher ton propre nom." "check" "perception" "difficulty" "10" "type" "blanc" "success" "dossiers_nom" "failure" "dossiers_rate" }
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"dossiers_nom"
+		{
+			"set"	"dossier_lacombe"
+			"line"	{ "speaker" "narrateur" "text" "« Lacombe, Désiré. Ci-devant clerc de procureur à Meaux. Veuf. Boit. Zèle remarquable depuis la mort de son épouse. » Et en bas, d'une autre encre : « À surveiller. »" }
+			"line"	{ "speaker" "volonte" "text" "Veuf. Le mot est sec comme une feuille morte. Mais c'est le tien." }
+			"line"	{ "speaker" "vadier" "text" "Tu vois ? Nous sommes tous dans un dossier, commissaire. La seule question est de savoir qui tient la plume." }
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"dossiers_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Les noms se brouillent. Il y en a trop, et ils se ressemblent tous." }
+			"line"	{ "speaker" "endurance" "text" "Le calvados de cette nuit te remonte dans la gorge. Pas maintenant." }
+			"health"	"-1"
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "vadier" "text" "Alors ? Une signature, et tu dors tranquille. Pas de signature, et je ne réponds plus de rien." }
+			"line"	{ "speaker" "narrateur" "text" "Il pousse vers toi une feuille déjà écrite et une plume trempée." }
+			"choice"	{ "text" "Signer le faux rapport." "goto" "fin_signe" }
+			"choice"	{ "text" "Lui offrir mieux : la cave de la rue de la Sourdière." "goto" "fin_denonce" "require" "contact_resistance" }
+			"choice"	{ "text" "Lui offrir mieux : l'imprimerie clandestine de la Delorme." "goto" "fin_denonce" "require" "secret_presse" "unless" "contact_resistance" }
+			"choice"	{ "text" "Refuser, en le retournant contre lui : « Robespierre aimerait lire ce que vous dites de lui. »" "check" "rhetorique" "difficulty" "13" "type" "rouge" "success" "fin_retourne_ok" "failure" "fin_retourne_rate" }
+			"choice"	{ "text" "Refuser simplement." "goto" "fin_refus" }
+			"choice"	{ "text" "Pas encore." "goto" "bureau" }
+		}
+
+		"fin_signe"
+		{
+			"set"	"faux_rapport"
+			"set"	"camp_conjures"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La plume gratte. Ta signature est plus droite que tu ne l'aurais cru." }
+			"line"	{ "speaker" "vadier" "text" "Parfait. Demain, viens à la Convention. Tribune du public, à gauche. Si on te demande de répéter ce que tu as écrit, tu le répéteras." }
+			"line"	{ "speaker" "ferveur" "text" "TRAÎTRE. TRAÎTRE. TRAÎTRE." }
+			"line"	{ "speaker" "volonte" "text" "Ou survivant. À Paris, cet été, la différence tient dans une signature." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_denonce"
+		{
+			"set"	"denonce_cave"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Une imprimerie d'indulgents ? Voilà qui ne m'intéresse pas du tout, aujourd'hui. Mais Robespierre, lui, adorerait. Garde-la pour toi." }
+			"line"	{ "speaker" "vadier" "text" "Je t'inscris quand même. Ça peut toujours servir. Demain, Convention, tribune de gauche. Tu regarderas, et tu apprendras." }
+			"line"	{ "speaker" "empathie" "require" "marie_libre" "text" "Tu viens de vendre Marie-Anne pour rien. Il n'en voulait même pas." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_retourne_ok"
+		{
+			"set"	"tient_vadier"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Le sourire de Vadier se fige une demi-seconde. Puis il revient, plus mince." }
+			"line"	{ "speaker" "vadier" "text" "Bien joué, commissaire. Nous nous tenons l'un l'autre, maintenant. C'est la seule amitié qui dure, à Paris." }
+			"line"	{ "speaker" "sangfroid" "text" "Tu sors sans te presser. Dans ton dos, il ne dit rien. C'est le plus beau compliment qu'il pouvait te faire." }
+			"end"	"1"
+		}
+
+		"fin_retourne_rate"
+		{
+			"set"	"marque_vadier"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Robespierre ? Il ne lit plus que ses propres discours. Va, commissaire. Tu es noté." }
+			"line"	{ "speaker" "narrateur" "text" "L'huissier te raccompagne jusqu'à la rue. Il ne te lâche pas le bras." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_refus"
+		{
+			"set"	"marque_vadier"
+			"set"	"neutre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Dommage. Tu me plaisais. Va donc écouter ton Incorruptible demain, et prie pour qu'il gagne." }
+			"line"	{ "speaker" "volonte" "text" "Tu n'as rien signé. Ce n'est pas grand-chose. C'est peut-être tout." }
+			"end"	"1"
+		}
+	}
+}

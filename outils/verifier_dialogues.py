@@ -19,7 +19,8 @@ DOSSIER = RACINE / "HuitThermidor" / "Content" / "Dialogues"
 
 COMPETENCES = ["logique", "rhetorique", "empathie", "volonte", "ferveur", "spectres",
                "endurance", "poigne", "perception", "sangfroid"]
-PERSONNAGES = {"narrateur", "marie", "messager", "crieur", "porteur", "mercier"}
+PERSONNAGES = {"narrateur", "marie", "messager", "crieur", "porteur", "mercier",
+               "anselme", "vadier", "sansculotte", "tricoteuse", "huissier", "tallien", "secretaire", "saintjust", "robespierre", "assemblee", "garnier", "augustin", "piquier", "guichetier"}
 PROFILS = {
     "Le Zélé": dict(ferveur=4, poigne=4, endurance=3, volonte=3, sangfroid=2, perception=2,
                     logique=1, rhetorique=1, empathie=1, spectres=1),
@@ -169,6 +170,8 @@ def simuler(scenes, parties, graine=1):
                     break
                 sid = suivante
                 noeud = scenes[sid]["start"]
+                sante = min(skills["endurance"] + 2, sante + 1)
+                moral = min(skills["volonte"] + 2, moral + 1)
                 continue
             visibles = []
             for i, c in enumerate(get_all(nd, "choice")):

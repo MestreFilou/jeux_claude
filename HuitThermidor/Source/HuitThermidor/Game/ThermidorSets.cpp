@@ -98,6 +98,56 @@ namespace
 			return T;
 		}
 
+		/** Ciel, soleil (ou lune) et brume pour les scènes en extérieur. */
+		void Outdoor(float SunPitch, float SunIntensity, const FLinearColor& SunColor, float FogDensity)
+		{
+			if (ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(FVector(0, 0, 3000.f), FRotator(SunPitch, 35.f, 0.f)))
+			{
+				UDirectionalLightComponent* C = CastChecked<UDirectionalLightComponent>(Sun->GetLightComponent());
+				C->SetMobility(EComponentMobility::Movable);
+				C->SetIntensity(SunIntensity);
+				C->SetLightColor(SunColor);
+				C->SetAtmosphereSunLight(true);
+				Out.Add(Sun);
+			}
+			if (AActor* Sky = World->SpawnActor<AActor>(AActor::StaticClass(), FTransform::Identity))
+			{
+				USkyAtmosphereComponent* Atmo = NewObject<USkyAtmosphereComponent>(Sky);
+				Sky->SetRootComponent(Atmo);
+				Atmo->RegisterComponent();
+				Sky->AddInstanceComponent(Atmo);
+				Out.Add(Sky);
+			}
+			if (ASkyLight* SkyLight = World->SpawnActor<ASkyLight>(FVector(0, 0, 500.f), FRotator::ZeroRotator))
+			{
+				USkyLightComponent* C = SkyLight->GetLightComponent();
+				C->SetMobility(EComponentMobility::Movable);
+				C->SetIntensity(0.8f);
+				C->RecaptureSky();
+				Out.Add(SkyLight);
+			}
+			if (AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(FVector(0, 0, 0.f), FRotator::ZeroRotator))
+			{
+				UExponentialHeightFogComponent* C = Fog->GetComponent();
+				C->SetFogDensity(FogDensity);
+				C->SetFogInscatteringColor(FLinearColor(0.35f, 0.33f, 0.32f));
+				C->SetVolumetricFog(true);
+				Out.Add(Fog);
+			}
+		}
+
+		/** Une pièce fermée : sol, plafond, quatre murs. Origine au centre du sol. */
+		void Room(float W, float D, float H, const FLinearColor& Floor, const FLinearColor& Walls)
+		{
+			const float T = 20.f;
+			Box(FVector(0, 0, -T * 0.5f), FVector(W, D, T), Floor);
+			Box(FVector(0, 0, H + T * 0.5f), FVector(W, D, T), Walls * 0.5f);
+			Box(FVector(0, -D * 0.5f, H * 0.5f), FVector(W, T, H), Walls);
+			Box(FVector(0, D * 0.5f, H * 0.5f), FVector(W, T, H), Walls);
+			Box(FVector(-W * 0.5f, 0, H * 0.5f), FVector(T, D, H), Walls);
+			Box(FVector(W * 0.5f, 0, H * 0.5f), FVector(T, D, H), Walls);
+		}
+
 		void Mood(float ExposureBias, const FLinearColor& Tint)
 		{
 			APostProcessVolume* V = World->SpawnActor<APostProcessVolume>();
@@ -241,43 +291,177 @@ ThermidorSets::FSetResult ThermidorSets::BuildPlace(UWorld* World, TArray<AActor
 	}
 
 	// Lumière de l'aube : soleil bas, ciel, brume
-	if (ADirectionalLight* Sun = World->SpawnActor<ADirectionalLight>(FVector(0, 0, 3000.f), FRotator(-8.f, 35.f, 0.f)))
-	{
-		UDirectionalLightComponent* C = CastChecked<UDirectionalLightComponent>(Sun->GetLightComponent());
-		C->SetMobility(EComponentMobility::Movable);
-		C->SetIntensity(3.f);
-		C->SetLightColor(FLinearColor(1.f, 0.72f, 0.50f));
-		C->SetAtmosphereSunLight(true);
-		Out.Add(Sun);
-	}
-	if (AActor* Sky = World->SpawnActor<AActor>(AActor::StaticClass(), FTransform::Identity))
-	{
-		USkyAtmosphereComponent* Atmo = NewObject<USkyAtmosphereComponent>(Sky);
-		Sky->SetRootComponent(Atmo);
-		Atmo->RegisterComponent();
-		Sky->AddInstanceComponent(Atmo);
-		Out.Add(Sky);
-	}
-	if (ASkyLight* SkyLight = World->SpawnActor<ASkyLight>(FVector(0, 0, 500.f), FRotator::ZeroRotator))
-	{
-		USkyLightComponent* C = SkyLight->GetLightComponent();
-		C->SetMobility(EComponentMobility::Movable);
-		C->SetIntensity(0.8f);
-		C->RecaptureSky();
-		Out.Add(SkyLight);
-	}
-	if (AExponentialHeightFog* Fog = World->SpawnActor<AExponentialHeightFog>(FVector(0, 0, 0.f), FRotator::ZeroRotator))
-	{
-		UExponentialHeightFogComponent* C = Fog->GetComponent();
-		C->SetFogDensity(0.03f);
-		C->SetFogInscatteringColor(FLinearColor(0.35f, 0.33f, 0.32f));
-		C->SetVolumetricFog(true);
-		Out.Add(Fog);
-	}
+	B.Outdoor(-8.f, 3.f, FLinearColor(1.f, 0.72f, 0.50f), 0.03f);
 	B.Mood(0.f, FLinearColor(0.95f, 0.95f, 1.f));
 
 	FSetResult R;
 	R.PlayerStart = FVector(1900.f, -900.f, 100.f);
 	R.PlayerRotation = FRotator(0.f, 155.f, 0.f);
+	return R;
+}
+
+ThermidorSets::FSetResult ThermidorSets::BuildCave(UWorld* World, TArray<AActor*>& Out, const UDialogueSubsystem* Dialogue)
+{
+	FBuilder B{ World, Out };
+	// Cave voûtée de 9 m x 5 m, 2,4 m sous voûte.
+	B.Room(900.f, 500.f, 240.f, FLinearColor(0.09f, 0.08f, 0.07f), FLinearColor(0.30f, 0.27f, 0.22f));
+	for (int32 i = -3; i <= 3; ++i)
+	{
+		B.Shape(TEXT("Cylinder"), FVector(i * 130.f, 0.f, 236.f), FVector(500.f, 30.f, 30.f), FLinearColor(0.24f, 0.21f, 0.17f), FRotator(0.f, 0.f, 90.f));
+	}
+
+	// La presse à bras et Anselme
+	const FVector Presse(300.f, -120.f, 0.f);
+	B.Box(Presse + FVector(0, 0, 50.f), FVector(120.f, 80.f, 100.f), Bois);
+	B.Box(Presse + FVector(0, 0, 150.f), FVector(20.f, 20.f, 100.f), Fer);
+	B.Box(Presse + FVector(0, 0, 200.f), FVector(140.f, 20.f, 14.f), Bois);
+	B.Person(Presse + FVector(-110.f, 40.f, 0.f), 160.f, TEXT("Anselme Roux"), FLinearColor(0.22f, 0.19f, 0.15f), { TEXT("anselme") });
+	B.Box(Presse + FVector(-60.f, 110.f, 25.f), FVector(35.f, 35.f, 50.f), Bois);	// tabouret au pistolet
+
+	// Feuilles qui sèchent sur des cordes
+	for (int32 i = 0; i < 6; ++i)
+	{
+		B.Box(FVector(-300.f + i * 70.f, 80.f, 185.f), FVector(28.f, 1.f, 38.f), Papier);
+	}
+	B.Thing(FVector(-120.f, 80.f, 185.f), TEXT("Les feuilles"), TEXT("Lire"), TEXT("Cube"), FVector(30.f, 2.f, 40.f), Papier, { TEXT("feuilles") });
+
+	// Marie-Anne sur une caisse, ou son châle plié
+	B.Box(FVector(-280.f, -150.f, 25.f), FVector(60.f, 50.f, 50.f), BoisClair);
+	if (Dialogue && Dialogue->HasFlag(TEXT("marie_libre")))
+	{
+		B.Person(FVector(-280.f, -150.f, 5.f), 60.f, TEXT("Marie-Anne Delorme"), FLinearColor(0.36f, 0.34f, 0.31f), { TEXT("marie") }, true);
+	}
+	else if (Dialogue && Dialogue->HasFlag(TEXT("marie_livree")))
+	{
+		B.Thing(FVector(-280.f, -150.f, 55.f), TEXT("Le châle plié"), TEXT("Toucher"), TEXT("Cube"), FVector(40.f, 30.f, 6.f), FLinearColor(0.45f, 0.40f, 0.34f), { TEXT("chale") });
+	}
+
+	// Lampe à huile
+	B.Light(FVector(0.f, 0.f, 200.f), 4.f, FLinearColor(1.f, 0.66f, 0.35f), 800.f);
+	B.Light(Presse + FVector(0, 0, 160.f), 2.f, FLinearColor(1.f, 0.66f, 0.35f), 400.f);
+	B.Mood(-0.3f, FLinearColor(1.f, 0.92f, 0.80f));
+
+	FSetResult R;
+	R.PlayerStart = FVector(-380.f, 150.f, 100.f);
+	R.PlayerRotation = FRotator(0.f, -10.f, 0.f);
+	return R;
+}
+
+ThermidorSets::FSetResult ThermidorSets::BuildBureauVadier(UWorld* World, TArray<AActor*>& Out)
+{
+	FBuilder B{ World, Out };
+	// Grand bureau d'un hôtel particulier : 10 m x 8 m, 4,5 m de haut, boiseries dorées.
+	B.Room(1000.f, 800.f, 450.f, FLinearColor(0.20f, 0.12f, 0.07f), FLinearColor(0.55f, 0.50f, 0.40f));
+	for (int32 i = -4; i <= 4; ++i)
+	{
+		B.Box(FVector(i * 110.f, -390.f, 225.f), FVector(8.f, 6.f, 430.f), FLinearColor(0.60f, 0.48f, 0.20f));	// moulures dorées
+	}
+	// Fenêtre sur les Tuileries
+	B.Box(FVector(490.f, 0.f, 230.f), FVector(4.f, 220.f, 300.f), FLinearColor(0.55f, 0.62f, 0.70f));
+	B.Light(FVector(380.f, 0.f, 260.f), 10.f, FLinearColor(0.85f, 0.88f, 0.95f), 1200.f);
+
+	// Le bureau couvert de dossiers ficelés, Vadier derrière
+	const FVector Bureau(150.f, 0.f, 0.f);
+	B.Box(Bureau + FVector(0, 0, 76.f), FVector(110.f, 220.f, 8.f), Bois);
+	B.Box(Bureau + FVector(0, 0, 36.f), FVector(100.f, 210.f, 72.f), Bois);
+	B.Thing(Bureau + FVector(-20.f, 50.f, 95.f), TEXT("Les dossiers"), TEXT("Feuilleter"), TEXT("Cube"), FVector(40.f, 50.f, 30.f), Papier, { TEXT("dossiers") });
+	B.Person(Bureau + FVector(90.f, 0.f, 0.f), 180.f, TEXT("Vadier"), FLinearColor(0.07f, 0.07f, 0.08f), { TEXT("decision"), TEXT("vadier_veut"), TEXT("rapport") }, true);
+	B.Box(Bureau + FVector(-110.f, 0.f, 23.f), FVector(48.f, 48.f, 46.f), BoisClair);	// ta chaise
+	B.Light(Bureau + FVector(0.f, -80.f, 120.f), 5.f, FLinearColor(1.f, 0.70f, 0.40f), 600.f);
+	B.Mood(-0.2f, FLinearColor(1.f, 0.97f, 0.90f));
+
+	FSetResult R;
+	R.PlayerStart = FVector(-350.f, 0.f, 100.f);
+	R.PlayerRotation = FRotator(0.f, 0.f, 0.f);
+	return R;
+}
+
+ThermidorSets::FSetResult ThermidorSets::BuildConvention(UWorld* World, TArray<AActor*>& Out)
+{
+	FBuilder B{ World, Out };
+	// La salle des Machines, très simplifiée : gradins en demi-cercle vus depuis la tribune du public.
+	B.Room(3000.f, 2400.f, 1500.f, FLinearColor(0.15f, 0.12f, 0.09f), FLinearColor(0.20f, 0.28f, 0.22f));	// tentures vertes
+	for (int32 Row = 0; Row < 8; ++Row)
+	{
+		const float Y = -300.f - Row * 110.f;
+		B.Box(FVector(0.f, Y, 25.f + Row * 50.f), FVector(1800.f - Row * 60.f, 100.f, 50.f + Row * 100.f), FLinearColor(0.25f, 0.17f, 0.10f));
+		for (int32 Seat = -6; Seat <= 6; Seat += 2)
+		{
+			B.Person(FVector(Seat * 120.f + (Row % 2) * 60.f, Y, 50.f + Row * 100.f), -90.f, TEXT("Député"), FLinearColor(0.12f, 0.12f, 0.14f), {}, true);
+		}
+	}
+	// Tribune de l'orateur et bureau du président
+	B.Box(FVector(0.f, 300.f, 90.f), FVector(160.f, 100.f, 180.f), Bois);
+	B.Box(FVector(0.f, 450.f, 140.f), FVector(500.f, 80.f, 280.f), FLinearColor(0.30f, 0.18f, 0.10f));
+	B.Person(FVector(0.f, 300.f, 180.f), 90.f, TEXT("La tribune"), FLinearColor(0.10f, 0.10f, 0.12f), {});
+
+	// Tribune du public (où se trouve le joueur), en hauteur
+	const float GalZ = 700.f;
+	B.Box(FVector(0.f, 1000.f, GalZ - 10.f), FVector(2000.f, 300.f, 20.f), FLinearColor(0.18f, 0.12f, 0.08f));
+	B.Thing(FVector(0.f, 860.f, GalZ + 50.f), TEXT("La balustrade"), TEXT("Se pencher sur"), TEXT("Cube"), FVector(2000.f, 10.f, 100.f), Bois, { TEXT("seance") });
+	B.Person(FVector(-250.f, 1000.f, GalZ), -90.f, TEXT("Des sans-culottes"), FLinearColor(0.30f, 0.20f, 0.14f), { TEXT("voisins") });
+	B.Person(FVector(-150.f, 1050.f, GalZ), -90.f, TEXT("Une tricoteuse"), FLinearColor(0.35f, 0.25f, 0.25f), { TEXT("voisins") });
+	B.Thing(FVector(900.f, 1000.f, GalZ + 120.f), TEXT("L'escalier vers les gradins"), TEXT("Descendre par"), TEXT("Cube"), FVector(20.f, 150.f, 240.f), Bois, { TEXT("couloir") });
+
+	// Lustres et jour d'orage par les verrières
+	for (int32 i = -1; i <= 1; ++i)
+	{
+		B.Light(FVector(i * 800.f, 0.f, 1200.f), 60.f, FLinearColor(1.f, 0.80f, 0.55f), 2500.f);
+	}
+	B.Mood(0.2f, FLinearColor(1.f, 0.96f, 0.88f));
+
+	FSetResult R;
+	R.PlayerStart = FVector(200.f, 1050.f, GalZ + 100.f);
+	R.PlayerRotation = FRotator(-15.f, -90.f, 0.f);
+	return R;
+}
+
+ThermidorSets::FSetResult ThermidorSets::BuildGreve(UWorld* World, TArray<AActor*>& Out, const UDialogueSubsystem* Dialogue)
+{
+	FBuilder B{ World, Out };
+	// Place de Grève, de nuit, sous la pluie : l'Hôtel de Ville au nord, la Seine au sud.
+	B.Box(FVector(0, 0, -10.f), FVector(5000.f, 4000.f, 20.f), FLinearColor(0.08f, 0.08f, 0.09f));
+	const FVector Hotel(0.f, -1900.f, 0.f);
+	B.Box(Hotel + FVector(0, 0, 1000.f), FVector(4000.f, 400.f, 2000.f), Pierre * 0.7f);
+	for (int32 i = -8; i <= 8; ++i)
+	{
+		for (int32 Etage = 0; Etage < 3; ++Etage)
+		{
+			// Fenêtres éclairées
+			B.Box(Hotel + FVector(i * 220.f, 201.f, 450.f + Etage * 500.f), FVector(110.f, 4.f, 220.f), FLinearColor(1.f, 0.75f, 0.40f) * 2.f);
+		}
+	}
+	B.Thing(Hotel + FVector(0.f, 205.f, 200.f), TEXT("L'Hôtel de Ville"), TEXT("Entrer dans"), TEXT("Cube"), FVector(300.f, 10.f, 400.f), Bois, { TEXT("escalier") });
+	B.Light(Hotel + FVector(0.f, 450.f, 400.f), 40.f, FLinearColor(1.f, 0.70f, 0.40f), 1500.f);
+
+	// Canons de Hanriot
+	for (int32 i = -2; i <= 2; ++i)
+	{
+		B.Shape(TEXT("Cylinder"), FVector(i * 350.f, -900.f, 80.f), FVector(40.f, 40.f, 260.f), Fer, FRotator(90.f, 90.f, 0.f));
+		B.Shape(TEXT("Cylinder"), FVector(i * 350.f, -880.f, 50.f), FVector(100.f, 100.f, 20.f), Bois, FRotator(0.f, 0.f, 90.f));
+	}
+
+	// Les hommes de la section des Piques
+	B.Person(FVector(900.f, 300.f, 0.f), 150.f, TEXT("Les hommes des Piques"), Bleu, { TEXT("piquiers") });
+	B.Person(FVector(980.f, 380.f, 0.f), 150.f, TEXT("Un piquier"), Bleu, {});
+	B.Person(FVector(830.f, 400.f, 0.f), 150.f, TEXT("Un piquier"), Bleu, {});
+
+	if (Dialogue && Dialogue->HasFlag(TEXT("marie_libre")))
+	{
+		B.Person(FVector(-500.f, -700.f, 0.f), 60.f, TEXT("Marie-Anne Delorme"), FLinearColor(0.36f, 0.34f, 0.31f), { TEXT("marie") });
+	}
+	if (Dialogue && Dialogue->HasFlag(TEXT("marie_livree")))
+	{
+		B.Thing(FVector(-1500.f, 1700.f, 120.f), TEXT("Le quai vers la Conciergerie"), TEXT("Courir par"), TEXT("Cube"), FVector(30.f, 300.f, 240.f), Pierre, { TEXT("conciergerie") });
+	}
+	// La Seine, noire, au sud
+	B.Box(FVector(0.f, 2300.f, -60.f), FVector(5000.f, 600.f, 20.f), FLinearColor(0.02f, 0.03f, 0.04f));
+
+	B.Outdoor(-35.f, 0.15f, FLinearColor(0.55f, 0.62f, 0.85f), 0.06f);	// nuit, pluie
+	B.Mood(0.8f, FLinearColor(0.85f, 0.90f, 1.f));
+
+	FSetResult R;
+	R.PlayerStart = FVector(600.f, 1200.f, 100.f);
+	R.PlayerRotation = FRotator(0.f, -110.f, 0.f);
 	return R;
 }
