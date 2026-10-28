@@ -2,6 +2,7 @@
 // Même format que la scène 01. Les drapeaux posés dans la scène 01 sont conservés
 // (marie_libre, marie_livree, marie_attachee, contact_resistance, echarpe_portee,
 // verification, temps_gagne, autre_personne, marie_sang, nom, brutal...).
+// La fin « Comité » mène à scene03_comite, les autres à scene03_cave.
 // Contexte : ce 8 thermidor, Robespierre parle à la Convention. Il tombera le lendemain.
 
 "dialogue"
@@ -14,6 +15,7 @@
 	{
 		"place"
 		{
+			"hub"	"1"
 			"music"	"Musique.Place"
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "text" "Dehors, l'air sent le crottin et la fumée de bois. Au centre de la place des Piques, là où se dressait le roi de bronze à cheval, il ne reste qu'un socle vide couvert d'affiches. Un crieur public y est grimpé, une feuille à la main. Près de la fontaine, un vieux porteur d'eau remplit ses seaux sans se presser." }
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "require" "verification" "text" "Au coin de la rue, deux gardes nationaux attendent avec un homme en écharpe tricolore. Un bandage lui barre la mâchoire." }
@@ -162,6 +164,7 @@
 
 		"fin_comite"
 		{
+			"next"	"scene03_comite"
 			"set"	"route_comite"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu prends la rue Saint-Honoré vers les Tuileries, Mercier sur tes talons. Les volets s'ouvrent sur ton passage, puis se referment." }
@@ -173,6 +176,7 @@
 
 		"fin_cave"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_resistance"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu coupes par la ruelle derrière le socle vide. La voix du crieur s'éteint dans ton dos." }
@@ -183,6 +187,7 @@
 
 		"fin_passage"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_libre"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "mercier" "text" "Va. Et renoue ton écharpe : on te regarde." }
@@ -193,6 +198,7 @@
 
 		"fin_fuite"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_fugitif"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu cours. Derrière toi, quelqu'un crie « Au suspect ! », et la rue entière tourne la tête." }

@@ -1,11 +1,11 @@
-"""Assemble le prototype jouable : template.html + tous les fichiers de dialogues/.
+"""Assemble le prototype jouable : template.html + tous les fichiers de HuitThermidor/Content/Dialogues/.
 
 Usage : python3 prototype/build.py  ->  écrit prototype/index.html
 """
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
-scenes = sorted((root / "dialogues").glob("scene*.txt"))
+scenes = sorted((root / "HuitThermidor" / "Content" / "Dialogues").glob("scene*.txt"))
 blocks = "".join(
     f'<script type="text/plain" class="kv">{p.read_text(encoding="utf-8")}</script>\n' for p in scenes
 )

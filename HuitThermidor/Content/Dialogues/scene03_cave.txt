@@ -1,0 +1,206 @@
+// Scène 03 (version cave) : la presse clandestine de la rue de la Sourdière
+// On y arrive après les fins « cave », « passage » ou « fuite » de la scène 02.
+// Historique : la veille du 9 thermidor, Thérésa Cabarrus, emprisonnée, presse
+// son amant le député Tallien d'agir contre Robespierre. Tallien a lui-même
+// réprimé Bordeaux avec dureté en 1793.
+
+"dialogue"
+{
+	"id"	"scene03_cave"
+	"title"	"Cave de la rue de la Sourdière, 8 thermidor an II, 9 h"
+	"start"	"arrivee"
+	"next"	"scene04"
+
+	"nodes"
+	{
+		"arrivee"
+		{
+			"music"	"Musique.Cave"
+			"line"	{ "speaker" "narrateur" "require" "route_resistance" "text" "La porte à la colombe se referme derrière toi. Une odeur d'encre fraîche, de papier humide et de café brûlé. Au fond, une presse à bras grince sous les mains d'un homme en tablier." }
+			"line"	{ "speaker" "narrateur" "unless" "route_resistance" "text" "Tu as suivi le porteur d'eau jusqu'à une ruelle, puis une colombe dessinée au charbon sur une porte basse. Tu as frappé au hasard. Quelqu'un a ouvert, par erreur ou par curiosité. Une odeur d'encre fraîche, de papier humide et de café brûlé." }
+			"line"	{ "speaker" "narrateur" "require" "route_fugitif" "text" "Ton cœur cogne encore de la course. Dehors, les cris « Au suspect ! » se sont éteints." }
+			"line"	{ "speaker" "anselme" "text" "Une écharpe tricolore dans ma cave. On aura tout vu. Tu viens nous arrêter, citoyen, ou tu viens lire ?" }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Ses mains sont noires jusqu'aux poignets. Près de la presse, une pile de feuilles fraîches, et un pistolet posé sur un tabouret, à portée de main." }
+			"choice"	{ "text" "« Je viens lire. »" "goto" "cave" }
+			"choice"	{ "text" "Poser la main sur ton sabre : « Personne ne bouge. »" "check" "poigne" "difficulty" "12" "type" "rouge" "success" "menace_ok" "failure" "menace_rate" }
+		}
+
+		"menace_ok"
+		{
+			"set"	"menace_cave"
+			"line"	{ "speaker" "narrateur" "text" "Personne ne bouge. L'homme lève lentement ses mains noires." }
+			"line"	{ "speaker" "anselme" "text" "Bien. Tu as gagné. Et maintenant, commissaire ? Tu vas porter cinq cents feuilles tout seul jusqu'au Comité ?" }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Il n'a pas peur pour lui. Il a peur pour quelqu'un qui n'est pas dans cette pièce." }
+			"choice"	{ "text" "Lâcher le sabre. « Je voulais savoir si vous étiez prêts. »" "goto" "cave" }
+		}
+
+		"menace_rate"
+		{
+			"set"	"menace_cave"
+			"line"	{ "speaker" "narrateur" "text" "Tu n'as pas fini ton geste que le pistolet est déjà dans sa main, chien levé." }
+			"line"	{ "speaker" "anselme" "text" "Pas ici. Ici, on pose les sabres." }
+			"morale"	"-1"
+			"choice"	{ "text" "Poser le sabre sur le tabouret." "goto" "cave" }
+		}
+
+		"cave"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "text" "La cave est basse et voûtée. Des cordes tendues d'un mur à l'autre, où sèchent des feuilles imprimées comme du linge. Une lampe à huile. Une échelle vers une trappe." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "require" "marie_libre" "text" "Assise sur une caisse, Marie-Anne Delorme frotte encore ses poignets. Elle t'a vu entrer et n'a rien dit." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "require" "marie_livree" "text" "Sur une caisse, un châle de lingère plié avec soin. Personne ne s'assoit dessus." }
+			"line"	{ "speaker" "narrateur" "require" "vu_cave" "text" "La cave. La presse. Les feuilles qui sèchent sur leurs cordes." }
+			"set"	"vu_cave"
+			"choice"	{ "text" "Lire une des feuilles qui sèchent." "goto" "feuilles" "unless" "feuilles_lues" }
+			"choice"	{ "text" "Parler à l'homme en tablier." "goto" "anselme" }
+			"choice"	{ "text" "Parler à Marie-Anne." "goto" "marie" "require" "marie_libre" "unless" "marie_parlee" }
+			"choice"	{ "text" "Toucher le châle plié." "goto" "chale" "require" "marie_livree" "unless" "chale_vu" }
+			"choice"	{ "text" "Décider de ce que tu feras de la lettre." "goto" "decision" "require" "lettre_vue" }
+		}
+
+		"feuilles"
+		{
+			"set"	"feuilles_lues"
+			"line"	{ "speaker" "narrateur" "text" "« Citoyens ! La liberté ne se défend pas en coupant toutes les têtes qui pensent. Ouvrez les prisons aux innocents ; la clémence est aussi une vertu républicaine. »" }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "8" "text" "C'est le ton du Vieux Cordelier, la feuille de Desmoulins. Mot pour mot par endroits. Ils impriment un mort." }
+			"line"	{ "speaker" "ferveur" "text" "INDULGENTS. MODÉRÉS. LES ENNEMIS DE LA RÉPUBLIQUE PARLENT TOUJOURS DE CLÉMENCE." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Tu entends une voix jeune, un peu bègue, qui lit ces lignes à voix haute dans un café du Palais-Royal. Il riait. Il a ri jusqu'à la charrette." }
+			"choice"	{ "text" "Reposer la feuille." "goto" "cave" }
+		}
+
+		"anselme"
+		{
+			"line"	{ "speaker" "anselme" "unless" "anselme_vu" "text" "Anselme Roux, typographe. Avant, j'imprimais des almanachs et des chansons. Maintenant j'imprime ce qu'on n'a plus le droit de dire." }
+			"line"	{ "speaker" "anselme" "require" "anselme_vu" "text" "Encore toi. L'encre sèche pendant que tu réfléchis." }
+			"set"	"anselme_vu"
+			"choice"	{ "text" "« Qu'est-ce que vous préparez ? »" "goto" "anselme_plan" "unless" "lettre_vue" }
+			"choice"	{ "text" "« Pourquoi me faire confiance ? »" "goto" "anselme_confiance" "unless" "anselme_confiance" }
+			"choice"	{ "text" "Le sonder : qui vous protège, à la Convention ?" "check" "logique" "difficulty" "10" "type" "blanc" "success" "anselme_protecteur" "failure" "anselme_protecteur_rate" "unless" "protecteur_connu" }
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"anselme_plan"
+		{
+			"set"	"lettre_vue"
+			"line"	{ "speaker" "anselme" "text" "Demain, des députés vont se lever contre Robespierre. Ils ont peur, ils hésitent. Il faut que l'un d'eux, Tallien, n'hésite plus." }
+			"line"	{ "speaker" "narrateur" "text" "Il sort de son tablier une lettre pliée, cachetée de cire rouge." }
+			"line"	{ "speaker" "anselme" "text" "Elle vient de prison. De Thérésa Cabarrus, sa maîtresse. Elle passe au Tribunal dans trois jours. Elle lui écrit qu'elle mourra en sachant qu'elle a aimé un lâche." }
+			"line"	{ "speaker" "anselme" "text" "Un commissaire en écharpe entre partout. Même à la Convention. Toi, tu peux la lui remettre en main propre." }
+			"line"	{ "speaker" "logique" "text" "Tallien. Représentant en mission à Bordeaux l'an dernier. La guillotine y a travaillé jour et nuit. Tu aiderais un boucher à en abattre un autre." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_confiance"
+		{
+			"set"	"anselme_confiance"
+			"line"	{ "speaker" "anselme" "require" "marie_libre" "text" "Je ne te fais pas confiance. Elle, oui. Elle dit que tu as coupé sa corde. C'est plus que ce qu'ont fait les autres." }
+			"line"	{ "speaker" "anselme" "unless" "marie_libre" "text" "Je ne te fais pas confiance. Mais un commissaire qui frappe à notre porte au lieu de l'enfoncer, c'est déjà une nouvelle." }
+			"line"	{ "speaker" "anselme" "require" "menace_cave" "text" "Et tu as quand même sorti ton sabre. Je m'en souviendrai." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_protecteur"
+		{
+			"set"	"protecteur_connu"
+			"line"	{ "speaker" "logique" "text" "Il a dit « des députés », pas « nous ». Ils ne sont pas les chefs : ils sont le messager. Quelqu'un, en haut, se sert d'une cave de typographes pour faire passer une lettre qu'il n'ose pas porter lui-même." }
+			"line"	{ "speaker" "anselme" "text" "...Fouché. Tu es content ? Si tu répètes ce nom, on est tous morts, toi le premier." }
+			"line"	{ "speaker" "sangfroid" "passive" "sangfroid" "difficulty" "8" "text" "Garde ce nom au fond de ta poche. Il vaudra cher demain, d'un côté ou de l'autre." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_protecteur_rate"
+		{
+			"line"	{ "speaker" "anselme" "text" "Personne ne nous protège. C'est pour ça qu'on imprime dans une cave." }
+			"line"	{ "speaker" "logique" "text" "Il ment, ou il ne sait pas. Tu ne sais pas lequel des deux." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"marie"
+		{
+			"set"	"marie_parlee"
+			"line"	{ "speaker" "marie" "text" "Vous êtes venu. Je ne savais pas si je devais l'espérer ou le craindre." }
+			"line"	{ "speaker" "marie" "require" "brutal" "text" "Je n'ai pas oublié votre poing sur la table. Mais je n'ai pas oublié la corde non plus." }
+			"line"	{ "speaker" "marie" "text" "Cette nuit, vous m'avez parlé d'Hélène. Vous disiez qu'elle chantait faux. Vous disiez que depuis sa mort, vous ne sentiez plus rien, et que l'écharpe aidait." }
+			"line"	{ "speaker" "volonte" "require" "souvenir_abbe" "text" "Hélène. Le porteur d'eau a dit le même nom. Deux personnes qui ne se connaissent pas portent le même morceau de toi." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "9" "text" "Elle ne te demande rien. C'est pour ça que tu as envie de lui donner quelque chose." }
+			"choice"	{ "text" "« Je ne sais pas encore de quel côté je suis. »" "goto" "marie_cote" }
+			"choice"	{ "text" "« Merci de m'avoir rendu ce nom. »" "goto" "marie_merci" "require" "nom" }
+		}
+
+		"marie_cote"
+		{
+			"line"	{ "speaker" "marie" "text" "Personne ne le sait, à Paris, cet été. Ceux qui disent le savoir sont les plus dangereux." }
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"marie_merci"
+		{
+			"line"	{ "speaker" "marie" "text" "Désiré. Vous l'avez dit vous-même, vers quatre heures. Vous l'avez répété comme un enfant qui apprend à lire." }
+			"line"	{ "speaker" "volonte" "text" "Désiré. Quelqu'un l'a dit à voix haute. Ça tient debout, maintenant." }
+			"morale"	"1"
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"chale"
+		{
+			"set"	"chale_vu"
+			"line"	{ "speaker" "narrateur" "text" "Le châle est encore tiède, comme si on venait de le poser. Il sent le savon noir et l'amidon." }
+			"line"	{ "speaker" "anselme" "text" "C'est celui de Marie-Anne. Elle devait venir ce matin. Elle est à la Conciergerie, à l'heure qu'il est. Grâce à un commissaire en écharpe." }
+			"line"	{ "speaker" "volonte" "text" "Il sait. Ils savent tous." }
+			"morale"	"-1"
+			"choice"	{ "text" "Reposer le châle." "goto" "cave" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Anselme te tend la lettre. La cire rouge brille sous la lampe." }
+			"line"	{ "speaker" "ferveur" "text" "UNE CONSPIRATION CONTRE L'INCORRUPTIBLE. TON DEVOIR EST CLAIR." }
+			"line"	{ "speaker" "spectres" "text" "Le roi, Danton, Desmoulins, et toutes les charrettes de cet été. Combien encore, si personne ne se lève ?" }
+			"choice"	{ "text" "Prendre la lettre. Tu la porteras à Tallien." "goto" "fin_lettre" }
+			"choice"	{ "text" "Prendre la lettre en jurant de la porter, pour la remettre au Comité." "check" "sangfroid" "difficulty" "12" "type" "rouge" "success" "fin_double_ok" "failure" "fin_double_rate" }
+			"choice"	{ "text" "Refuser. « Je ne choisirai pas entre deux bouchers. »" "goto" "fin_refus" }
+			"choice"	{ "text" "Pas encore." "goto" "cave" }
+		}
+
+		"fin_lettre"
+		{
+			"set"	"porte_lettre"
+			"set"	"camp_conjures"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu glisses la lettre sous ton gilet, contre ta peau. Elle est légère. Elle pèse plus que ton sabre." }
+			"line"	{ "speaker" "anselme" "text" "Demain midi, la Convention. Tallien sera au premier rang de la Montagne. Ne la donne à personne d'autre." }
+			"line"	{ "speaker" "marie" "require" "marie_libre" "text" "Revenez vivant, Désiré." }
+			"end"	"1"
+		}
+
+		"fin_double_ok"
+		{
+			"set"	"porte_lettre"
+			"set"	"double_jeu"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu prends la lettre, tu serres la main d'Anselme, tu regardes Marie-Anne droit dans les yeux. Personne ne voit rien." }
+			"line"	{ "speaker" "sangfroid" "text" "Parfait. Ils te croient. Toi, est-ce que tu te crois encore ?" }
+			"line"	{ "speaker" "ferveur" "text" "LE COMITÉ SAURA RÉCOMPENSER UN PATRIOTE." }
+			"end"	"1"
+		}
+
+		"fin_double_rate"
+		{
+			"set"	"chasse_cave"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix a hésité une fraction de seconde de trop. Anselme reprend la lettre d'un geste sec." }
+			"line"	{ "speaker" "anselme" "text" "Dehors. Et si la garde vient ici avant ce soir, on saura qui l'a envoyée." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_refus"
+		{
+			"set"	"neutre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "anselme" "text" "Alors va voir, demain. Assieds-toi dans les tribunes et regarde l'histoire se faire sans toi." }
+			"line"	{ "speaker" "volonte" "text" "Ne rien choisir, c'est encore choisir. Mais au moins, c'est toi qui choisis de ne pas choisir." }
+			"end"	"1"
+		}
+	}
+}

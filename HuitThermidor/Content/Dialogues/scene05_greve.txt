@@ -1,0 +1,160 @@
+// Scène 05 : la place de Grève, nuit du 9 au 10 thermidor an II (dernière scène)
+// Historique : libéré par la Commune, Robespierre se réfugie à l'Hôtel de Ville.
+// Sous la pluie, les sectionnaires venus défendre la Commune rentrent chez eux.
+// La section des Piques, celle de Robespierre, se range du côté de la Convention.
+// Vers deux heures, les troupes de la Convention entrent. Robespierre a la mâchoire
+// fracassée par un coup de pistolet. Selon la tradition, il n'avait écrit que « Ro »
+// au bas d'un appel à... la section des Piques.
+// Le 10 thermidor, il est guillotiné avec 21 autres ; le 11, 71 membres de la Commune suivent.
+
+"dialogue"
+{
+	"id"	"scene05"
+	"title"	"Place de Grève, nuit du 9 au 10 thermidor an II, 1 h"
+	"start"	"greve"
+
+	"nodes"
+	{
+		"greve"
+		{
+			"music"	"Musique.Greve"
+			"line"	{ "speaker" "narrateur" "text" "La pluie tombe à verse sur la place de Grève. Les fenêtres de l'Hôtel de Ville sont toutes éclairées. Devant, les canons de Hanriot, la gueule mouillée, et des artilleurs qui regardent le ciel en se demandant s'ils vont rester." }
+			"line"	{ "speaker" "narrateur" "text" "Il y avait des milliers d'hommes ici à dix heures. Il en reste quelques centaines. Les autres sont rentrés se sécher." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "8" "text" "C'est ici, sur cette place, qu'on pendait et qu'on rouait sous les rois. Les pavés s'en souviennent mieux que les hommes." }
+			"choice"	{ "text" "Regarder autour de toi." "goto" "place" }
+		}
+
+		"place"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "require" "vu_greve" "text" "La pluie. Les canons. Les fenêtres éclairées de l'Hôtel de Ville." }
+			"set"	"vu_greve"
+			"choice"	{ "text" "Parler aux hommes de ta section, sous la pluie." "goto" "piquiers" "unless" "piquiers_vus" }
+			"choice"	{ "text" "Rejoindre la femme au châle, près des canons." "goto" "marie" "require" "marie_libre" "unless" "marie_greve" }
+			"choice"	{ "text" "Monter à l'Hôtel de Ville." "goto" "escalier" }
+			"choice"	{ "text" "Courir à la Conciergerie, où est Marie-Anne." "goto" "conciergerie" "require" "marie_livree" }
+		}
+
+		"piquiers"
+		{
+			"set"	"piquiers_vus"
+			"line"	{ "speaker" "piquier" "text" "Commissaire Lacombe ! La section des Piques a voté il y a une heure : nous sommes pour la Convention. Pour la Convention, tu entends ? Sa propre section." }
+			"line"	{ "speaker" "piquier" "text" "On vient chercher Hanriot et les autres. Tu marches avec nous ?" }
+			"line"	{ "speaker" "ferveur" "text" "SA PROPRE SECTION. LES INGRATS. LES LÂCHES." }
+			"line"	{ "speaker" "logique" "text" "Ou des gens qui ont compris avant toi de quel côté tombe la pluie." }
+			"choice"	{ "text" "« J'arrive. Allez devant. »" "goto" "place" }
+		}
+
+		"marie"
+		{
+			"set"	"marie_greve"
+			"line"	{ "speaker" "narrateur" "text" "Marie-Anne, trempée, un paquet de feuilles serré sous son châle pour les garder au sec." }
+			"line"	{ "speaker" "marie" "text" "Je voulais voir ça. La fin, ou le début, je ne sais pas encore." }
+			"line"	{ "speaker" "marie" "require" "lettre_remise" "text" "Anselme dit que Tallien a sorti son poignard à la tribune. Il dit que c'est grâce à un commissaire." }
+			"line"	{ "speaker" "marie" "require" "lettre_livree" "text" "Anselme dit qu'on a lu le courrier de Tallien chez Saint-Just. Il cherche qui l'a porté. Il n'a pas encore trouvé." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Elle grelotte. Elle ne partira pas avant toi." }
+			"choice"	{ "text" "« Attendez-moi ici. »" "goto" "place" }
+		}
+
+		"conciergerie"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tu cours le long des quais sous la pluie. La Conciergerie est une masse noire au bord de l'eau. Un guichetier mal réveillé entrouvre le judas." }
+			"line"	{ "speaker" "guichetier" "text" "Une libération ? À deux heures du matin ? Avec quel ordre ?" }
+			"choice"	{ "text" "Montrer le nom de Vadier, que tu tiens désormais." "goto" "fin_conciergerie_ok" "require" "tient_vadier" }
+			"choice"	{ "text" "Inventer un ordre du Comité, d'une voix sûre." "check" "rhetorique" "difficulty" "12" "type" "rouge" "success" "fin_conciergerie_ok" "failure" "conciergerie_rate" }
+			"choice"	{ "text" "Revenir à la place de Grève." "goto" "place" }
+		}
+
+		"conciergerie_rate"
+		{
+			"line"	{ "speaker" "guichetier" "text" "Pas d'ordre, pas de prisonnière. Reviens demain. Demain, ce sera peut-être un autre monde." }
+			"line"	{ "speaker" "volonte" "text" "Demain. Elle passera au Tribunal, ou les prisons s'ouvriront. Tu ne peux plus rien cette nuit." }
+			"morale"	"-1"
+			"choice"	{ "text" "Revenir à la place de Grève." "goto" "place" }
+		}
+
+		"escalier"
+		{
+			"music"	"Musique.Tension"
+			"line"	{ "speaker" "narrateur" "text" "Le grand escalier est plein de boue et de cocardes piétinées. Personne ne t'arrête : ton écharpe, ou ton air, suffit. Au premier étage, une salle, des chandelles, des hommes épuisés autour d'une table." }
+			"line"	{ "speaker" "narrateur" "text" "Robespierre est assis, une plume à la main, devant une feuille à en-tête de la Commune. Il lève les yeux. Il voit ton écharpe." }
+			"line"	{ "speaker" "robespierre" "text" "Vous êtes de quelle section, citoyen ?" }
+			"choice"	{ "text" "« Des Piques. »" "goto" "appel" }
+		}
+
+		"appel"
+		{
+			"line"	{ "speaker" "robespierre" "text" "Des Piques. Ma section. On me dit qu'elle m'abandonne." }
+			"line"	{ "speaker" "narrateur" "text" "Il tourne la feuille vers toi. « Courage, patriotes de la section des Piques. La liberté triomphe... » Il manque la signature." }
+			"line"	{ "speaker" "robespierre" "text" "Je signe, et vous la portez. Ils vous écouteront, vous. Vous êtes des leurs." }
+			"line"	{ "speaker" "ferveur" "text" "L'INCORRUPTIBLE TE PARLE. À TOI. C'EST LE PLUS BEAU JOUR DE TA VIE." }
+			"line"	{ "speaker" "spectres" "text" "Tu entends déjà, dans l'escalier, des bottes qui montent." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Sa main tremble. Il n'a pas dormi depuis deux jours. Ce n'est pas un tyran, c'est un homme fatigué qui croit encore aux mots." }
+			"choice"	{ "text" "« Signez. Je la porterai. »" "goto" "fin_robespierriste" }
+			"choice"	{ "text" "Ouvrir la porte aux bottes qui montent." "goto" "fin_thermidorien" }
+			"choice"	{ "text" "Ôter ton écharpe, la poser sur la table, et sortir." "check" "volonte" "difficulty" "10" "type" "blanc" "success" "fin_desire" "failure" "appel_rate" }
+		}
+
+		"appel_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tes doigts trouvent le nœud de l'écharpe. Ils n'arrivent pas à le défaire. Robespierre te regarde, sans comprendre." }
+			"line"	{ "speaker" "ferveur" "text" "TU NE PEUX PAS. TU N'ES RIEN SANS ELLE." }
+			"morale"	"-1"
+			"choice"	{ "text" "« Signez. Je la porterai. »" "goto" "fin_robespierriste" }
+			"choice"	{ "text" "Ouvrir la porte aux bottes qui montent." "goto" "fin_thermidorien" }
+		}
+
+		"fin_robespierriste"
+		{
+			"set"	"fin_robespierriste"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Il trempe la plume. Il écrit « Ro ». La porte s'ouvre à la volée. Un coup de feu. Robespierre s'effondre sur la feuille, la mâchoire fracassée, et le sang coule sur l'appel qu'il n'a pas fini de signer." }
+			"line"	{ "speaker" "narrateur" "text" "On t'arrache la feuille. On t'arrache ton écharpe. On t'emmène avec les autres." }
+			"line"	{ "speaker" "narrateur" "text" "Le 10 thermidor, à sept heures du soir, Robespierre monte à l'échafaud avec vingt et un de ses amis. Le 11, c'est le tour de soixante et onze hommes de la Commune." }
+			"line"	{ "speaker" "spectres" "text" "Ton nom est sur la liste du 11. Tu le lis sans trembler. Désiré Lacombe. Au moins, ils l'ont bien écrit." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Le dernier fidèle." }
+			"end"	"1"
+		}
+
+		"fin_thermidorien"
+		{
+			"set"	"fin_thermidorien"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu ouvres la porte. Les gendarmes entrent. Un coup de feu. Robespierre s'effondre sur la feuille, la mâchoire fracassée, à côté d'un « Ro » qui ne sera jamais un nom entier." }
+			"line"	{ "speaker" "narrateur" "text" "Au matin, on te félicite. Un patriote de la section des Piques, qui a ouvert la porte au bon moment. On te garde ton écharpe." }
+			"line"	{ "speaker" "narrateur" "require" "faux_rapport" "text" "Vadier te serre la main. Il a oublié ton nom, mais il se souvient de ta signature." }
+			"line"	{ "speaker" "logique" "text" "Dans un an, on appellera ça la Réaction. Les jeunes gens à cadenettes chasseront les jacobins dans les rues, à coups de gourdin. Il y aura de nouvelles listes. Tu sauras les tenir." }
+			"line"	{ "speaker" "volonte" "text" "Tu as survécu. C'est tout ce que tu as fait, mais tu l'as bien fait." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Le survivant." }
+			"end"	"1"
+		}
+
+		"fin_desire"
+		{
+			"set"	"fin_desire"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "L'écharpe glisse sur la table, à côté de la feuille. Robespierre la regarde, puis te regarde. Il ne dit rien. Tu descends l'escalier à contre-courant des bottes." }
+			"line"	{ "speaker" "narrateur" "text" "Derrière toi, un coup de feu. Tu ne te retournes pas." }
+			"line"	{ "speaker" "narrateur" "require" "marie_libre" "text" "Sur la place, sous la pluie, une femme au châle t'attend toujours. Elle ne te demande pas où est ton écharpe." }
+			"line"	{ "speaker" "narrateur" "unless" "marie_libre" "text" "Sur la place, il ne reste presque personne. La pluie, les canons abandonnés, et toi." }
+			"line"	{ "speaker" "volonte" "require" "nom" "text" "Désiré. Il commence par un D, il sent l'encre et la pluie. Cette nuit, il sent surtout la pluie." }
+			"line"	{ "speaker" "spectres" "text" "Quelque part, une femme qui chantait faux étend son linge au soleil. Tu n'as pas besoin de la voir pour savoir qu'elle sourit." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Désiré." }
+			"end"	"1"
+		}
+
+		"fin_conciergerie_ok"
+		{
+			"set"	"fin_conciergerie"
+			"set"	"marie_sauvee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Le guichetier hésite, puis tire les verrous. Cette nuit, personne à Paris ne sait plus qui commande. C'est la seule nuit où un mensonge peut ouvrir une prison." }
+			"line"	{ "speaker" "narrateur" "text" "Marie-Anne sort dans le couloir, pâle, un châle d'emprunt sur les épaules. Elle te reconnaît." }
+			"line"	{ "speaker" "marie" "text" "C'est vous qui m'avez mise ici." }
+			"line"	{ "speaker" "volonte" "text" "Oui. Et c'est toi qui viens la chercher. Les deux sont vrais. Il faudra vivre avec les deux." }
+			"line"	{ "speaker" "narrateur" "text" "Au loin, vers l'Hôtel de Ville, un coup de feu. Vous marchez ensemble sur le quai, sans parler, jusqu'à ce que le jour se lève." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. La réparation." }
+			"end"	"1"
+		}
+	}
+}

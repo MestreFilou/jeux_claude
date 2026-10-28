@@ -144,7 +144,8 @@ button { font: inherit; cursor: pointer; }
 //             + success + failure ; require / unless pour l'afficher ou non
 //   "set"     drapeau mis à 1 en entrant dans le noeud
 //   "health" / "morale"  modifie les jauges en entrant dans le noeud
-//   "end"     fin de scène
+//   "hub"     noeud où l'on peut fermer le dialogue et explorer le décor (Unreal)
+//   "end"     fin de scène (+ "next" pour choisir la scène suivante)
 
 "dialogue"
 {
@@ -192,6 +193,7 @@ button { font: inherit; cursor: pointer; }
 
 		"bureau"
 		{
+			"hub"	"1"
 			"line"	{ "speaker" "narrateur" "unless" "vu_bureau" "text" "La salle du comité de surveillance. Une table chargée de registres, un encrier renversé, l'affiche de la loi des suspects clouée au mur. Sur une chaise, les poignets liés par une corde, une femme te regarde. Ton écharpe tricolore n'est plus autour de ta taille." }
 			"line"	{ "speaker" "narrateur" "require" "vu_bureau" "text" "La salle. Les registres. La femme sur sa chaise, qui ne te quitte pas des yeux." }
 			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau" "text" "Du sang séché sur le pommeau du sabre posé sur la table. Pas beaucoup. Assez." }
@@ -438,6 +440,7 @@ button { font: inherit; cursor: pointer; }
 // Même format que la scène 01. Les drapeaux posés dans la scène 01 sont conservés
 // (marie_libre, marie_livree, marie_attachee, contact_resistance, echarpe_portee,
 // verification, temps_gagne, autre_personne, marie_sang, nom, brutal...).
+// La fin « Comité » mène à scene03_comite, les autres à scene03_cave.
 // Contexte : ce 8 thermidor, Robespierre parle à la Convention. Il tombera le lendemain.
 
 "dialogue"
@@ -450,6 +453,7 @@ button { font: inherit; cursor: pointer; }
 	{
 		"place"
 		{
+			"hub"	"1"
 			"music"	"Musique.Place"
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "text" "Dehors, l'air sent le crottin et la fumée de bois. Au centre de la place des Piques, là où se dressait le roi de bronze à cheval, il ne reste qu'un socle vide couvert d'affiches. Un crieur public y est grimpé, une feuille à la main. Près de la fontaine, un vieux porteur d'eau remplit ses seaux sans se presser." }
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "require" "verification" "text" "Au coin de la rue, deux gardes nationaux attendent avec un homme en écharpe tricolore. Un bandage lui barre la mâchoire." }
@@ -598,6 +602,7 @@ button { font: inherit; cursor: pointer; }
 
 		"fin_comite"
 		{
+			"next"	"scene03_comite"
 			"set"	"route_comite"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu prends la rue Saint-Honoré vers les Tuileries, Mercier sur tes talons. Les volets s'ouvrent sur ton passage, puis se referment." }
@@ -609,6 +614,7 @@ button { font: inherit; cursor: pointer; }
 
 		"fin_cave"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_resistance"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu coupes par la ruelle derrière le socle vide. La voix du crieur s'éteint dans ton dos." }
@@ -619,6 +625,7 @@ button { font: inherit; cursor: pointer; }
 
 		"fin_passage"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_libre"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "mercier" "text" "Va. Et renoue ton écharpe : on te regarde." }
@@ -629,11 +636,739 @@ button { font: inherit; cursor: pointer; }
 
 		"fin_fuite"
 		{
+			"next"	"scene03_cave"
 			"set"	"route_fugitif"
 			"music"	"Musique.Fin"
 			"line"	{ "speaker" "narrateur" "text" "Tu cours. Derrière toi, quelqu'un crie « Au suspect ! », et la rue entière tourne la tête." }
 			"line"	{ "speaker" "endurance" "text" "Tes poumons brûlent. Tu ne tiendras pas longtemps à ce rythme." }
 			"line"	{ "speaker" "spectres" "text" "Quelque part, une colombe au charbon t'attend. Il faudra la trouver avant eux." }
+			"end"	"1"
+		}
+	}
+}
+</script>
+<script type="text/plain" class="kv">// Scène 03 (version cave) : la presse clandestine de la rue de la Sourdière
+// On y arrive après les fins « cave », « passage » ou « fuite » de la scène 02.
+// Historique : la veille du 9 thermidor, Thérésa Cabarrus, emprisonnée, presse
+// son amant le député Tallien d'agir contre Robespierre. Tallien a lui-même
+// réprimé Bordeaux avec dureté en 1793.
+
+"dialogue"
+{
+	"id"	"scene03_cave"
+	"title"	"Cave de la rue de la Sourdière, 8 thermidor an II, 9 h"
+	"start"	"arrivee"
+	"next"	"scene04"
+
+	"nodes"
+	{
+		"arrivee"
+		{
+			"music"	"Musique.Cave"
+			"line"	{ "speaker" "narrateur" "require" "route_resistance" "text" "La porte à la colombe se referme derrière toi. Une odeur d'encre fraîche, de papier humide et de café brûlé. Au fond, une presse à bras grince sous les mains d'un homme en tablier." }
+			"line"	{ "speaker" "narrateur" "unless" "route_resistance" "text" "Tu as suivi le porteur d'eau jusqu'à une ruelle, puis une colombe dessinée au charbon sur une porte basse. Tu as frappé au hasard. Quelqu'un a ouvert, par erreur ou par curiosité. Une odeur d'encre fraîche, de papier humide et de café brûlé." }
+			"line"	{ "speaker" "narrateur" "require" "route_fugitif" "text" "Ton cœur cogne encore de la course. Dehors, les cris « Au suspect ! » se sont éteints." }
+			"line"	{ "speaker" "anselme" "text" "Une écharpe tricolore dans ma cave. On aura tout vu. Tu viens nous arrêter, citoyen, ou tu viens lire ?" }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Ses mains sont noires jusqu'aux poignets. Près de la presse, une pile de feuilles fraîches, et un pistolet posé sur un tabouret, à portée de main." }
+			"choice"	{ "text" "« Je viens lire. »" "goto" "cave" }
+			"choice"	{ "text" "Poser la main sur ton sabre : « Personne ne bouge. »" "check" "poigne" "difficulty" "12" "type" "rouge" "success" "menace_ok" "failure" "menace_rate" }
+		}
+
+		"menace_ok"
+		{
+			"set"	"menace_cave"
+			"line"	{ "speaker" "narrateur" "text" "Personne ne bouge. L'homme lève lentement ses mains noires." }
+			"line"	{ "speaker" "anselme" "text" "Bien. Tu as gagné. Et maintenant, commissaire ? Tu vas porter cinq cents feuilles tout seul jusqu'au Comité ?" }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Il n'a pas peur pour lui. Il a peur pour quelqu'un qui n'est pas dans cette pièce." }
+			"choice"	{ "text" "Lâcher le sabre. « Je voulais savoir si vous étiez prêts. »" "goto" "cave" }
+		}
+
+		"menace_rate"
+		{
+			"set"	"menace_cave"
+			"line"	{ "speaker" "narrateur" "text" "Tu n'as pas fini ton geste que le pistolet est déjà dans sa main, chien levé." }
+			"line"	{ "speaker" "anselme" "text" "Pas ici. Ici, on pose les sabres." }
+			"morale"	"-1"
+			"choice"	{ "text" "Poser le sabre sur le tabouret." "goto" "cave" }
+		}
+
+		"cave"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "text" "La cave est basse et voûtée. Des cordes tendues d'un mur à l'autre, où sèchent des feuilles imprimées comme du linge. Une lampe à huile. Une échelle vers une trappe." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "require" "marie_libre" "text" "Assise sur une caisse, Marie-Anne Delorme frotte encore ses poignets. Elle t'a vu entrer et n'a rien dit." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_cave" "require" "marie_livree" "text" "Sur une caisse, un châle de lingère plié avec soin. Personne ne s'assoit dessus." }
+			"line"	{ "speaker" "narrateur" "require" "vu_cave" "text" "La cave. La presse. Les feuilles qui sèchent sur leurs cordes." }
+			"set"	"vu_cave"
+			"choice"	{ "text" "Lire une des feuilles qui sèchent." "goto" "feuilles" "unless" "feuilles_lues" }
+			"choice"	{ "text" "Parler à l'homme en tablier." "goto" "anselme" }
+			"choice"	{ "text" "Parler à Marie-Anne." "goto" "marie" "require" "marie_libre" "unless" "marie_parlee" }
+			"choice"	{ "text" "Toucher le châle plié." "goto" "chale" "require" "marie_livree" "unless" "chale_vu" }
+			"choice"	{ "text" "Décider de ce que tu feras de la lettre." "goto" "decision" "require" "lettre_vue" }
+		}
+
+		"feuilles"
+		{
+			"set"	"feuilles_lues"
+			"line"	{ "speaker" "narrateur" "text" "« Citoyens ! La liberté ne se défend pas en coupant toutes les têtes qui pensent. Ouvrez les prisons aux innocents ; la clémence est aussi une vertu républicaine. »" }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "8" "text" "C'est le ton du Vieux Cordelier, la feuille de Desmoulins. Mot pour mot par endroits. Ils impriment un mort." }
+			"line"	{ "speaker" "ferveur" "text" "INDULGENTS. MODÉRÉS. LES ENNEMIS DE LA RÉPUBLIQUE PARLENT TOUJOURS DE CLÉMENCE." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Tu entends une voix jeune, un peu bègue, qui lit ces lignes à voix haute dans un café du Palais-Royal. Il riait. Il a ri jusqu'à la charrette." }
+			"choice"	{ "text" "Reposer la feuille." "goto" "cave" }
+		}
+
+		"anselme"
+		{
+			"line"	{ "speaker" "anselme" "unless" "anselme_vu" "text" "Anselme Roux, typographe. Avant, j'imprimais des almanachs et des chansons. Maintenant j'imprime ce qu'on n'a plus le droit de dire." }
+			"line"	{ "speaker" "anselme" "require" "anselme_vu" "text" "Encore toi. L'encre sèche pendant que tu réfléchis." }
+			"set"	"anselme_vu"
+			"choice"	{ "text" "« Qu'est-ce que vous préparez ? »" "goto" "anselme_plan" "unless" "lettre_vue" }
+			"choice"	{ "text" "« Pourquoi me faire confiance ? »" "goto" "anselme_confiance" "unless" "anselme_confiance" }
+			"choice"	{ "text" "Le sonder : qui vous protège, à la Convention ?" "check" "logique" "difficulty" "10" "type" "blanc" "success" "anselme_protecteur" "failure" "anselme_protecteur_rate" "unless" "protecteur_connu" }
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"anselme_plan"
+		{
+			"set"	"lettre_vue"
+			"line"	{ "speaker" "anselme" "text" "Demain, des députés vont se lever contre Robespierre. Ils ont peur, ils hésitent. Il faut que l'un d'eux, Tallien, n'hésite plus." }
+			"line"	{ "speaker" "narrateur" "text" "Il sort de son tablier une lettre pliée, cachetée de cire rouge." }
+			"line"	{ "speaker" "anselme" "text" "Elle vient de prison. De Thérésa Cabarrus, sa maîtresse. Elle passe au Tribunal dans trois jours. Elle lui écrit qu'elle mourra en sachant qu'elle a aimé un lâche." }
+			"line"	{ "speaker" "anselme" "text" "Un commissaire en écharpe entre partout. Même à la Convention. Toi, tu peux la lui remettre en main propre." }
+			"line"	{ "speaker" "logique" "text" "Tallien. Représentant en mission à Bordeaux l'an dernier. La guillotine y a travaillé jour et nuit. Tu aiderais un boucher à en abattre un autre." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_confiance"
+		{
+			"set"	"anselme_confiance"
+			"line"	{ "speaker" "anselme" "require" "marie_libre" "text" "Je ne te fais pas confiance. Elle, oui. Elle dit que tu as coupé sa corde. C'est plus que ce qu'ont fait les autres." }
+			"line"	{ "speaker" "anselme" "unless" "marie_libre" "text" "Je ne te fais pas confiance. Mais un commissaire qui frappe à notre porte au lieu de l'enfoncer, c'est déjà une nouvelle." }
+			"line"	{ "speaker" "anselme" "require" "menace_cave" "text" "Et tu as quand même sorti ton sabre. Je m'en souviendrai." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_protecteur"
+		{
+			"set"	"protecteur_connu"
+			"line"	{ "speaker" "logique" "text" "Il a dit « des députés », pas « nous ». Ils ne sont pas les chefs : ils sont le messager. Quelqu'un, en haut, se sert d'une cave de typographes pour faire passer une lettre qu'il n'ose pas porter lui-même." }
+			"line"	{ "speaker" "anselme" "text" "...Fouché. Tu es content ? Si tu répètes ce nom, on est tous morts, toi le premier." }
+			"line"	{ "speaker" "sangfroid" "passive" "sangfroid" "difficulty" "8" "text" "Garde ce nom au fond de ta poche. Il vaudra cher demain, d'un côté ou de l'autre." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"anselme_protecteur_rate"
+		{
+			"line"	{ "speaker" "anselme" "text" "Personne ne nous protège. C'est pour ça qu'on imprime dans une cave." }
+			"line"	{ "speaker" "logique" "text" "Il ment, ou il ne sait pas. Tu ne sais pas lequel des deux." }
+			"choice"	{ "text" "Continuer." "goto" "anselme" }
+		}
+
+		"marie"
+		{
+			"set"	"marie_parlee"
+			"line"	{ "speaker" "marie" "text" "Vous êtes venu. Je ne savais pas si je devais l'espérer ou le craindre." }
+			"line"	{ "speaker" "marie" "require" "brutal" "text" "Je n'ai pas oublié votre poing sur la table. Mais je n'ai pas oublié la corde non plus." }
+			"line"	{ "speaker" "marie" "text" "Cette nuit, vous m'avez parlé d'Hélène. Vous disiez qu'elle chantait faux. Vous disiez que depuis sa mort, vous ne sentiez plus rien, et que l'écharpe aidait." }
+			"line"	{ "speaker" "volonte" "require" "souvenir_abbe" "text" "Hélène. Le porteur d'eau a dit le même nom. Deux personnes qui ne se connaissent pas portent le même morceau de toi." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "9" "text" "Elle ne te demande rien. C'est pour ça que tu as envie de lui donner quelque chose." }
+			"choice"	{ "text" "« Je ne sais pas encore de quel côté je suis. »" "goto" "marie_cote" }
+			"choice"	{ "text" "« Merci de m'avoir rendu ce nom. »" "goto" "marie_merci" "require" "nom" }
+		}
+
+		"marie_cote"
+		{
+			"line"	{ "speaker" "marie" "text" "Personne ne le sait, à Paris, cet été. Ceux qui disent le savoir sont les plus dangereux." }
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"marie_merci"
+		{
+			"line"	{ "speaker" "marie" "text" "Désiré. Vous l'avez dit vous-même, vers quatre heures. Vous l'avez répété comme un enfant qui apprend à lire." }
+			"line"	{ "speaker" "volonte" "text" "Désiré. Quelqu'un l'a dit à voix haute. Ça tient debout, maintenant." }
+			"morale"	"1"
+			"choice"	{ "text" "Revenir au milieu de la cave." "goto" "cave" }
+		}
+
+		"chale"
+		{
+			"set"	"chale_vu"
+			"line"	{ "speaker" "narrateur" "text" "Le châle est encore tiède, comme si on venait de le poser. Il sent le savon noir et l'amidon." }
+			"line"	{ "speaker" "anselme" "text" "C'est celui de Marie-Anne. Elle devait venir ce matin. Elle est à la Conciergerie, à l'heure qu'il est. Grâce à un commissaire en écharpe." }
+			"line"	{ "speaker" "volonte" "text" "Il sait. Ils savent tous." }
+			"morale"	"-1"
+			"choice"	{ "text" "Reposer le châle." "goto" "cave" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Anselme te tend la lettre. La cire rouge brille sous la lampe." }
+			"line"	{ "speaker" "ferveur" "text" "UNE CONSPIRATION CONTRE L'INCORRUPTIBLE. TON DEVOIR EST CLAIR." }
+			"line"	{ "speaker" "spectres" "text" "Le roi, Danton, Desmoulins, et toutes les charrettes de cet été. Combien encore, si personne ne se lève ?" }
+			"choice"	{ "text" "Prendre la lettre. Tu la porteras à Tallien." "goto" "fin_lettre" }
+			"choice"	{ "text" "Prendre la lettre en jurant de la porter, pour la remettre au Comité." "check" "sangfroid" "difficulty" "12" "type" "rouge" "success" "fin_double_ok" "failure" "fin_double_rate" }
+			"choice"	{ "text" "Refuser. « Je ne choisirai pas entre deux bouchers. »" "goto" "fin_refus" }
+			"choice"	{ "text" "Pas encore." "goto" "cave" }
+		}
+
+		"fin_lettre"
+		{
+			"set"	"porte_lettre"
+			"set"	"camp_conjures"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu glisses la lettre sous ton gilet, contre ta peau. Elle est légère. Elle pèse plus que ton sabre." }
+			"line"	{ "speaker" "anselme" "text" "Demain midi, la Convention. Tallien sera au premier rang de la Montagne. Ne la donne à personne d'autre." }
+			"line"	{ "speaker" "marie" "require" "marie_libre" "text" "Revenez vivant, Désiré." }
+			"end"	"1"
+		}
+
+		"fin_double_ok"
+		{
+			"set"	"porte_lettre"
+			"set"	"double_jeu"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu prends la lettre, tu serres la main d'Anselme, tu regardes Marie-Anne droit dans les yeux. Personne ne voit rien." }
+			"line"	{ "speaker" "sangfroid" "text" "Parfait. Ils te croient. Toi, est-ce que tu te crois encore ?" }
+			"line"	{ "speaker" "ferveur" "text" "LE COMITÉ SAURA RÉCOMPENSER UN PATRIOTE." }
+			"end"	"1"
+		}
+
+		"fin_double_rate"
+		{
+			"set"	"chasse_cave"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix a hésité une fraction de seconde de trop. Anselme reprend la lettre d'un geste sec." }
+			"line"	{ "speaker" "anselme" "text" "Dehors. Et si la garde vient ici avant ce soir, on saura qui l'a envoyée." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_refus"
+		{
+			"set"	"neutre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "anselme" "text" "Alors va voir, demain. Assieds-toi dans les tribunes et regarde l'histoire se faire sans toi." }
+			"line"	{ "speaker" "volonte" "text" "Ne rien choisir, c'est encore choisir. Mais au moins, c'est toi qui choisis de ne pas choisir." }
+			"end"	"1"
+		}
+	}
+}
+</script>
+<script type="text/plain" class="kv">// Scène 03 (version Comité) : le Comité de sûreté générale
+// On y arrive après la fin « Comité » de la scène 02.
+// Historique : le Comité de sûreté générale, qui siège à l'hôtel de Brionne,
+// déteste Robespierre. Vadier, l'un de ses membres, s'est moqué de lui en juin
+// avec l'affaire Catherine Théot, une illuminée qui voyait en Robespierre un messie.
+// La section des Piques est celle où vit Robespierre.
+
+"dialogue"
+{
+	"id"	"scene03_comite"
+	"title"	"Comité de sûreté générale, hôtel de Brionne, 8 thermidor an II, 9 h"
+	"start"	"antichambre"
+	"next"	"scene04"
+
+	"nodes"
+	{
+		"antichambre"
+		{
+			"music"	"Musique.Comite"
+			"line"	{ "speaker" "narrateur" "text" "Une antichambre dorée qui a appartenu à un prince. Les dorures sont restées, le prince non. Sur les banquettes, des gens attendent sans parler, un papier serré dans les mains." }
+			"line"	{ "speaker" "narrateur" "require" "suspect" "text" "Mercier s'éloigne vers un huissier et lui glisse quelques mots à l'oreille. L'huissier te regarde." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Sur les banquettes, il y a plus de monde que tu ne crois. Certains n'ont plus de tête et attendent quand même leur tour." }
+			"line"	{ "speaker" "narrateur" "text" "Une porte s'ouvre. Un vieil homme maigre, au visage creusé, te fait signe d'entrer d'un doigt." }
+			"choice"	{ "text" "Entrer." "goto" "bureau" }
+		}
+
+		"bureau"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "unless" "vu_bureau_csg" "text" "Un grand bureau couvert de dossiers ficelés. Une fenêtre sur les Tuileries. Le vieil homme s'assoit, croise ses mains osseuses et te regarde avec amusement." }
+			"line"	{ "speaker" "vadier" "unless" "vu_bureau_csg" "text" "Vadier, du Comité de sûreté générale. Assieds-toi, commissaire Lacombe. Section des Piques, n'est-ce pas ? La section de l'Incorruptible. Quel honneur." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau_csg" "text" "Sur le dossier du dessus, une étiquette : « Théot, Catherine, dite la Mère de Dieu ». Il l'a laissé là exprès, pour que tu le voies." }
+			"line"	{ "speaker" "vadier" "require" "vu_bureau_csg" "text" "Alors, commissaire ? J'ai tout mon temps. Enfin, jusqu'à demain." }
+			"set"	"vu_bureau_csg"
+			"choice"	{ "text" "Faire ton rapport sur la suspecte Delorme." "goto" "rapport" "unless" "rapport_fait" }
+			"choice"	{ "text" "« Que voulez-vous vraiment, citoyen ? »" "goto" "vadier_veut" "unless" "vadier_veut" }
+			"choice"	{ "text" "Regarder les dossiers sur le bureau." "goto" "dossiers" "unless" "dossiers_vus" }
+			"choice"	{ "text" "Donner ta réponse à Vadier." "goto" "decision" "require" "vadier_veut" }
+		}
+
+		"rapport"
+		{
+			"set"	"rapport_fait"
+			"line"	{ "speaker" "vadier" "require" "marie_livree" "text" "La Delorme ? Elle est déjà à la Conciergerie, on me l'a dit. Une lingère qui imprime. Le Tribunal s'en occupera en dix minutes. Ce n'est pas pour ça que je t'ai fait venir." }
+			"line"	{ "speaker" "vadier" "require" "marie_libre" "text" "La Delorme ? Envolée, d'après ton ami Mercier. Tu l'as relâchée. Un commissaire de la section de Robespierre qui relâche des imprimeuses... Comme c'est intéressant." }
+			"line"	{ "speaker" "vadier" "require" "marie_attachee" "text" "La Delorme ? Mercier dit qu'il l'a trouvée ficelée dans ta salle, et toi en train de pleurer sur ton écharpe. Tu es un drôle de commissaire." }
+			"line"	{ "speaker" "logique" "text" "Il connaît déjà toute l'histoire. Ton rapport ne l'intéresse pas. C'est toi qui l'intéresses." }
+			"choice"	{ "text" "Continuer." "goto" "bureau" }
+		}
+
+		"vadier_veut"
+		{
+			"set"	"vadier_veut"
+			"line"	{ "speaker" "vadier" "text" "Ce que je veux ? Que la République survive à ses prophètes." }
+			"line"	{ "speaker" "vadier" "text" "Demain, Robespierre va parler encore. Il a une liste, tout Paris le sait. Mon nom y est peut-être. Le tien aussi, depuis cette nuit." }
+			"line"	{ "speaker" "vadier" "text" "Je te propose ceci : tu signes un rapport. Tu y écris que des hommes de Robespierre t'ont ordonné de relâcher des suspects de ta section, contre de l'argent. Avec ce papier, demain, je fais taire l'Incorruptible." }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "9" "text" "Il dit « je te propose ». Il veut dire « je t'ordonne ». Et derrière les deux, il y a la charrette." }
+			"line"	{ "speaker" "ferveur" "text" "CALOMNIE CONTRE L'INCORRUPTIBLE ! REFUSE !" }
+			"choice"	{ "text" "Continuer." "goto" "bureau" }
+		}
+
+		"dossiers"
+		{
+			"set"	"dossiers_vus"
+			"line"	{ "speaker" "narrateur" "text" "Tu tires vers toi la pile de dossiers. Vadier ne t'en empêche pas." }
+			"line"	{ "speaker" "narrateur" "text" "Des noms, des dates, des adresses. Des signatures au bas de dénonciations : voisins, cousins, domestiques. Paris entier se surveille et s'écrit." }
+			"choice"	{ "text" "Chercher ton propre nom." "check" "perception" "difficulty" "10" "type" "blanc" "success" "dossiers_nom" "failure" "dossiers_rate" }
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"dossiers_nom"
+		{
+			"set"	"dossier_lacombe"
+			"line"	{ "speaker" "narrateur" "text" "« Lacombe, Désiré. Ci-devant clerc de procureur à Meaux. Veuf. Boit. Zèle remarquable depuis la mort de son épouse. » Et en bas, d'une autre encre : « À surveiller. »" }
+			"line"	{ "speaker" "volonte" "text" "Veuf. Le mot est sec comme une feuille morte. Mais c'est le tien." }
+			"line"	{ "speaker" "vadier" "text" "Tu vois ? Nous sommes tous dans un dossier, commissaire. La seule question est de savoir qui tient la plume." }
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"dossiers_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Les noms se brouillent. Il y en a trop, et ils se ressemblent tous." }
+			"line"	{ "speaker" "endurance" "text" "Le calvados de cette nuit te remonte dans la gorge. Pas maintenant." }
+			"health"	"-1"
+			"choice"	{ "text" "Reposer la pile." "goto" "bureau" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "vadier" "text" "Alors ? Une signature, et tu dors tranquille. Pas de signature, et je ne réponds plus de rien." }
+			"line"	{ "speaker" "narrateur" "text" "Il pousse vers toi une feuille déjà écrite et une plume trempée." }
+			"choice"	{ "text" "Signer le faux rapport." "goto" "fin_signe" }
+			"choice"	{ "text" "Lui offrir mieux : la cave de la rue de la Sourdière." "goto" "fin_denonce" "require" "contact_resistance" }
+			"choice"	{ "text" "Lui offrir mieux : l'imprimerie clandestine de la Delorme." "goto" "fin_denonce" "require" "secret_presse" "unless" "contact_resistance" }
+			"choice"	{ "text" "Refuser, en le retournant contre lui : « Robespierre aimerait lire ce que vous dites de lui. »" "check" "rhetorique" "difficulty" "13" "type" "rouge" "success" "fin_retourne_ok" "failure" "fin_retourne_rate" }
+			"choice"	{ "text" "Refuser simplement." "goto" "fin_refus" }
+			"choice"	{ "text" "Pas encore." "goto" "bureau" }
+		}
+
+		"fin_signe"
+		{
+			"set"	"faux_rapport"
+			"set"	"camp_conjures"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La plume gratte. Ta signature est plus droite que tu ne l'aurais cru." }
+			"line"	{ "speaker" "vadier" "text" "Parfait. Demain, viens à la Convention. Tribune du public, à gauche. Si on te demande de répéter ce que tu as écrit, tu le répéteras." }
+			"line"	{ "speaker" "ferveur" "text" "TRAÎTRE. TRAÎTRE. TRAÎTRE." }
+			"line"	{ "speaker" "volonte" "text" "Ou survivant. À Paris, cet été, la différence tient dans une signature." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_denonce"
+		{
+			"set"	"denonce_cave"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Une imprimerie d'indulgents ? Voilà qui ne m'intéresse pas du tout, aujourd'hui. Mais Robespierre, lui, adorerait. Garde-la pour toi." }
+			"line"	{ "speaker" "vadier" "text" "Je t'inscris quand même. Ça peut toujours servir. Demain, Convention, tribune de gauche. Tu regarderas, et tu apprendras." }
+			"line"	{ "speaker" "empathie" "require" "marie_libre" "text" "Tu viens de vendre Marie-Anne pour rien. Il n'en voulait même pas." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_retourne_ok"
+		{
+			"set"	"tient_vadier"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Le sourire de Vadier se fige une demi-seconde. Puis il revient, plus mince." }
+			"line"	{ "speaker" "vadier" "text" "Bien joué, commissaire. Nous nous tenons l'un l'autre, maintenant. C'est la seule amitié qui dure, à Paris." }
+			"line"	{ "speaker" "sangfroid" "text" "Tu sors sans te presser. Dans ton dos, il ne dit rien. C'est le plus beau compliment qu'il pouvait te faire." }
+			"end"	"1"
+		}
+
+		"fin_retourne_rate"
+		{
+			"set"	"marque_vadier"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Robespierre ? Il ne lit plus que ses propres discours. Va, commissaire. Tu es noté." }
+			"line"	{ "speaker" "narrateur" "text" "L'huissier te raccompagne jusqu'à la rue. Il ne te lâche pas le bras." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_refus"
+		{
+			"set"	"marque_vadier"
+			"set"	"neutre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "vadier" "text" "Dommage. Tu me plaisais. Va donc écouter ton Incorruptible demain, et prie pour qu'il gagne." }
+			"line"	{ "speaker" "volonte" "text" "Tu n'as rien signé. Ce n'est pas grand-chose. C'est peut-être tout." }
+			"end"	"1"
+		}
+	}
+}
+</script>
+<script type="text/plain" class="kv">// Scène 04 : la Convention, 9 thermidor an II
+// Historique (séance du 9 thermidor, salle des Machines aux Tuileries) :
+// Saint-Just commence « Je ne suis d'aucune faction ; je les combattrai toutes. »
+// Tallien l'interrompt et demande que « le rideau soit entièrement déchiré ».
+// Robespierre ne peut pas parler, couvert par « À bas le tyran ! ».
+// Garnier de l'Aube lui lance « Le sang de Danton t'étouffe ! ».
+// Augustin Robespierre demande à partager le sort de son frère. L'arrestation est votée.
+
+"dialogue"
+{
+	"id"	"scene04"
+	"title"	"La Convention, salle des Machines, 9 thermidor an II, midi"
+	"start"	"tribune"
+	"next"	"scene05"
+
+	"nodes"
+	{
+		"tribune"
+		{
+			"music"	"Musique.Convention"
+			"line"	{ "speaker" "narrateur" "text" "La salle est immense, ancien théâtre des rois, tendue de vert. En bas, sept cents députés sur des gradins. En haut, dans les tribunes, le peuple de Paris s'entasse : sans-culottes, tricoteuses, curieux, mouchards." }
+			"line"	{ "speaker" "narrateur" "text" "Il fait une chaleur de four. Un orage gronde quelque part au-dessus de la Seine." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Tout en haut de la Montagne, un homme pâle, en habit bleu ciel, poudré avec soin, qui ne regarde personne. Robespierre." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Les gradins sont pleins. Les places vides aussi : Danton, Desmoulins, Vergniaud. Ils sont venus voir." }
+			"line"	{ "speaker" "narrateur" "require" "porte_lettre" "text" "La lettre cachetée te brûle la poitrine sous le gilet." }
+			"line"	{ "speaker" "narrateur" "require" "faux_rapport" "text" "De l'autre côté de la salle, Vadier t'a vu. Il te fait un petit signe de tête, comme à un vieil ami." }
+			"choice"	{ "text" "Regarder autour de toi." "goto" "galerie" }
+		}
+
+		"galerie"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "text" "La séance n'a pas commencé. On parle bas, on s'évente avec des journaux." }
+			"choice"	{ "text" "Descendre vers les gradins pour trouver Tallien." "goto" "couloir" "require" "porte_lettre" "unless" "lettre_traitee" }
+			"choice"	{ "text" "Écouter les sans-culottes à côté de toi." "goto" "voisins" "unless" "voisins_vus" }
+			"choice"	{ "text" "Attendre l'ouverture de la séance." "goto" "seance" }
+		}
+
+		"voisins"
+		{
+			"set"	"voisins_vus"
+			"line"	{ "speaker" "sansculotte" "text" "Si on touche à Robespierre, la Commune sonnera le tocsin. Hanriot a des canons. On verra bien qui gouverne." }
+			"line"	{ "speaker" "tricoteuse" "text" "Moi je dis qu'il y en a trop, des charrettes. Ma voisine y est passée pour un mot de travers. Une couturière." }
+			"line"	{ "speaker" "sansculotte" "text" "Tais-toi donc, citoyenne. Il y a des oreilles partout." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Ils ont peur tous les deux, chacun d'une chose différente. Le peuple de Paris est fatigué." }
+			"choice"	{ "text" "Revenir à ta place." "goto" "galerie" }
+		}
+
+		"couloir"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Un escalier étroit, puis un couloir derrière les gradins. Un huissier en habit noir te barre la route." }
+			"line"	{ "speaker" "huissier" "text" "Les tribunes, c'est en haut, citoyen. Ici, c'est la représentation nationale." }
+			"choice"	{ "text" "Montrer ton écharpe : « Commissaire de la section des Piques. Affaire du Comité. »" "goto" "couloir_ok" "require" "carte" }
+			"choice"	{ "text" "L'impressionner : « Tu veux expliquer au Comité pourquoi tu m'as retardé ? »" "check" "ferveur" "difficulty" "10" "type" "rouge" "success" "couloir_ok" "failure" "couloir_rate" }
+			"choice"	{ "text" "Remonter." "goto" "galerie" }
+		}
+
+		"couloir_rate"
+		{
+			"set"	"lettre_traitee"
+			"line"	{ "speaker" "huissier" "text" "Le Comité ? Lequel ? Il y en a deux, et ils se détestent. Remonte, citoyen, ou j'appelle la garde." }
+			"line"	{ "speaker" "narrateur" "text" "La lettre reste sous ton gilet. Tallien ne la lira pas." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter." "goto" "galerie" }
+		}
+
+		"couloir_ok"
+		{
+			"line"	{ "speaker" "narrateur" "text" "L'huissier s'efface. Au bout du couloir, un homme de trente ans, beau, nerveux, qui triture quelque chose sous sa redingote. Tallien." }
+			"line"	{ "speaker" "narrateur" "require" "double_jeu" "text" "Plus loin, près de la porte du Comité de salut public, un secrétaire de Saint-Just range des papiers." }
+			"choice"	{ "text" "Remettre la lettre à Tallien." "goto" "lettre_tallien" }
+			"choice"	{ "text" "Remettre la lettre au secrétaire de Saint-Just." "goto" "lettre_saintjust" "require" "double_jeu" }
+			"choice"	{ "text" "Garder la lettre et remonter." "goto" "lettre_gardee" }
+		}
+
+		"lettre_tallien"
+		{
+			"set"	"lettre_traitee"
+			"set"	"lettre_remise"
+			"line"	{ "speaker" "narrateur" "text" "Tallien brise le cachet, lit. Son visage se vide de toute couleur, puis se remplit d'autre chose." }
+			"line"	{ "speaker" "tallien" "text" "Elle croit que je suis un lâche. Bien. Aujourd'hui, elle verra." }
+			"line"	{ "speaker" "narrateur" "text" "Sous sa redingote, tu aperçois l'éclat d'un poignard." }
+			"line"	{ "speaker" "logique" "text" "Tu viens de pousser l'Histoire d'un doigt. Elle penchait déjà. Tu ne sauras jamais si ton doigt comptait." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"lettre_saintjust"
+		{
+			"set"	"lettre_traitee"
+			"set"	"lettre_livree"
+			"line"	{ "speaker" "narrateur" "text" "Le secrétaire prend la lettre, la lit, siffle entre ses dents." }
+			"line"	{ "speaker" "secretaire" "text" "Une lettre de la Cabarrus à Tallien. Saint-Just va adorer. Ton nom, citoyen ?" }
+			"line"	{ "speaker" "ferveur" "text" "LE DEVOIR EST ACCOMPLI. LA VERTU TRIOMPHERA." }
+			"line"	{ "speaker" "spectres" "require" "marie_libre" "text" "Quelque part, dans une cave qui sent le café brûlé, Marie-Anne attend que tu reviennes vivant." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"lettre_gardee"
+		{
+			"set"	"lettre_traitee"
+			"line"	{ "speaker" "volonte" "text" "Ni pour l'un, ni pour l'autre. La lettre reste contre ta peau. Tu la brûleras ce soir, ou tu la garderas toute ta vie." }
+			"choice"	{ "text" "Remonter dans les tribunes." "goto" "galerie" }
+		}
+
+		"seance"
+		{
+			"music"	"Musique.Tension"
+			"line"	{ "speaker" "narrateur" "text" "Un jeune homme très droit monte à la tribune. Vingt-six ans, une haute cravate, un visage de marbre. Saint-Just." }
+			"line"	{ "speaker" "saintjust" "text" "Je ne suis d'aucune faction ; je les combattrai toutes." }
+			"line"	{ "speaker" "narrateur" "text" "Il n'a pas fini sa troisième phrase. Tallien bondit." }
+			"line"	{ "speaker" "tallien" "text" "Hier, un membre du gouvernement s'en est isolé. Aujourd'hui, un autre fait de même. Je demande que le rideau soit entièrement déchiré !" }
+			"line"	{ "speaker" "narrateur" "require" "lettre_remise" "text" "Il brandit le poignard. Les tribunes hurlent. Tu sais quelle lettre tient ce bras levé." }
+			"line"	{ "speaker" "narrateur" "require" "lettre_livree" "text" "Il parle vite, très vite. Comme un homme qui sait qu'on a lu son courrier et qu'il n'a plus rien à perdre." }
+			"line"	{ "speaker" "narrateur" "text" "Applaudissements. Billaud-Varenne enchaîne. Robespierre se lève, s'avance vers la tribune." }
+			"choice"	{ "text" "Regarder Robespierre." "goto" "robespierre" }
+		}
+
+		"robespierre"
+		{
+			"line"	{ "speaker" "robespierre" "text" "Je demande la parole !" }
+			"line"	{ "speaker" "assemblee" "text" "À bas le tyran ! À bas le tyran !" }
+			"line"	{ "speaker" "narrateur" "text" "Le président agite sa sonnette. Il ne donne pas la parole à Robespierre. Robespierre crie, sa voix se casse." }
+			"line"	{ "speaker" "garnier" "text" "Le sang de Danton t'étouffe !" }
+			"line"	{ "speaker" "robespierre" "text" "Lâches ! Pourquoi ne l'avez-vous pas défendu ?" }
+			"line"	{ "speaker" "spectres" "text" "Dans la tribune d'en face, tu jurerais voir un grand homme au visage grêlé qui sourit sans joie." }
+			"line"	{ "speaker" "ferveur" "text" "ILS ASSASSINENT LA VERTU ! CRIE ! DÉFENDS-LE !" }
+			"line"	{ "speaker" "narrateur" "text" "Autour de toi, les tribunes hésitent. Quelques voix pour lui. Beaucoup contre. La plupart se taisent et regardent leurs pieds." }
+			"choice"	{ "text" "Crier avec la salle : « À bas le tyran ! »" "goto" "cri_tyran" }
+			"choice"	{ "text" "Crier : « Vive Robespierre ! Vive la Commune ! »" "check" "volonte" "difficulty" "10" "type" "rouge" "success" "cri_robespierre_ok" "failure" "cri_robespierre_rate" }
+			"choice"	{ "text" "Descendre à la barre témoigner, comme Vadier te l'a demandé." "check" "rhetorique" "difficulty" "11" "type" "rouge" "success" "temoin_ok" "failure" "temoin_rate" "require" "faux_rapport" }
+			"choice"	{ "text" "Te taire. Regarder." "goto" "silence" }
+		}
+
+		"cri_tyran"
+		{
+			"set"	"crie_tyran"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix se perd dans la clameur. Personne ne l'entend. Toi, si." }
+			"line"	{ "speaker" "ferveur" "text" "TRAÎTRE..." }
+			"line"	{ "speaker" "volonte" "text" "La voix de la Révolution, dans ta tête, vient de baisser d'un ton. Pour la première fois." }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"cri_robespierre_ok"
+		{
+			"set"	"crie_robespierre"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix porte. Une dizaine d'hommes autour de toi reprennent : « Vive Robespierre ! » Un gendarme lève la tête vers votre tribune et note quelque chose." }
+			"line"	{ "speaker" "ferveur" "text" "OUI ! OUI ! LA VERTU N'EST PAS SEULE !" }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"cri_robespierre_rate"
+		{
+			"set"	"crie_robespierre"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix sort étranglée, à contretemps. Un sans-culotte te pousse du coude : « Ferme-la, tu vas nous faire tous raccourcir. »" }
+			"morale"	"-1"
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"temoin_ok"
+		{
+			"set"	"temoin"
+			"line"	{ "speaker" "narrateur" "text" "Tu descends. On te pousse à la barre. Tu répètes ton rapport : l'argent, les suspects relâchés, les hommes de Robespierre. Ta voix ne tremble pas." }
+			"line"	{ "speaker" "narrateur" "text" "Vadier hoche la tête. Des députés notent. Tu viens d'ajouter une pierre au tombeau d'un homme vivant." }
+			"line"	{ "speaker" "spectres" "text" "Il te regarde. Une seconde. Ses yeux verts derrière les lunettes. Il ne sait pas qui tu es. Il ne le saura jamais." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter, sans regarder personne." "goto" "vote" }
+		}
+
+		"temoin_rate"
+		{
+			"set"	"temoin"
+			"line"	{ "speaker" "narrateur" "text" "À la barre, les mots se dérobent. Tu bégaies, tu te contredis. Des rires dans les tribunes. On te renvoie d'un geste." }
+			"line"	{ "speaker" "narrateur" "text" "Vadier ne te regarde plus. C'est pire." }
+			"morale"	"-1"
+			"choice"	{ "text" "Remonter." "goto" "vote" }
+		}
+
+		"silence"
+		{
+			"set"	"silencieux"
+			"line"	{ "speaker" "narrateur" "text" "Tu te tais. Tu regardes. Comme les autres." }
+			"line"	{ "speaker" "empathie" "text" "Le sans-culotte à côté de toi pleure sans bruit. Tu ne sais pas pour qui." }
+			"choice"	{ "text" "Regarder la suite." "goto" "vote" }
+		}
+
+		"vote"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Un député obscur, Louchet, demande le décret d'arrestation. La salle se lève et applaudit." }
+			"line"	{ "speaker" "augustin" "text" "Je suis aussi coupable que mon frère. Je partage ses vertus, je veux partager son sort !" }
+			"line"	{ "speaker" "narrateur" "text" "Saint-Just, Couthon, Le Bas suivent. Les gendarmes les emmènent. Il est un peu plus de cinq heures. Dehors, l'orage éclate enfin." }
+			"line"	{ "speaker" "sansculotte" "text" "La Commune ne laissera pas faire. Ce soir, on sonne le tocsin à l'Hôtel de Ville." }
+			"line"	{ "speaker" "logique" "text" "Ce n'est pas fini. Ce soir, Paris choisira : la Convention ou la Commune. Et toi aussi." }
+			"choice"	{ "text" "Sortir sous l'orage." "goto" "fin" }
+		}
+
+		"fin"
+		{
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La pluie lave les marches des Tuileries. Les tambours de la Commune battent déjà quelque part vers l'Hôtel de Ville." }
+			"end"	"1"
+		}
+	}
+}
+</script>
+<script type="text/plain" class="kv">// Scène 05 : la place de Grève, nuit du 9 au 10 thermidor an II (dernière scène)
+// Historique : libéré par la Commune, Robespierre se réfugie à l'Hôtel de Ville.
+// Sous la pluie, les sectionnaires venus défendre la Commune rentrent chez eux.
+// La section des Piques, celle de Robespierre, se range du côté de la Convention.
+// Vers deux heures, les troupes de la Convention entrent. Robespierre a la mâchoire
+// fracassée par un coup de pistolet. Selon la tradition, il n'avait écrit que « Ro »
+// au bas d'un appel à... la section des Piques.
+// Le 10 thermidor, il est guillotiné avec 21 autres ; le 11, 71 membres de la Commune suivent.
+
+"dialogue"
+{
+	"id"	"scene05"
+	"title"	"Place de Grève, nuit du 9 au 10 thermidor an II, 1 h"
+	"start"	"greve"
+
+	"nodes"
+	{
+		"greve"
+		{
+			"music"	"Musique.Greve"
+			"line"	{ "speaker" "narrateur" "text" "La pluie tombe à verse sur la place de Grève. Les fenêtres de l'Hôtel de Ville sont toutes éclairées. Devant, les canons de Hanriot, la gueule mouillée, et des artilleurs qui regardent le ciel en se demandant s'ils vont rester." }
+			"line"	{ "speaker" "narrateur" "text" "Il y avait des milliers d'hommes ici à dix heures. Il en reste quelques centaines. Les autres sont rentrés se sécher." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "8" "text" "C'est ici, sur cette place, qu'on pendait et qu'on rouait sous les rois. Les pavés s'en souviennent mieux que les hommes." }
+			"choice"	{ "text" "Regarder autour de toi." "goto" "place" }
+		}
+
+		"place"
+		{
+			"hub"	"1"
+			"line"	{ "speaker" "narrateur" "require" "vu_greve" "text" "La pluie. Les canons. Les fenêtres éclairées de l'Hôtel de Ville." }
+			"set"	"vu_greve"
+			"choice"	{ "text" "Parler aux hommes de ta section, sous la pluie." "goto" "piquiers" "unless" "piquiers_vus" }
+			"choice"	{ "text" "Rejoindre la femme au châle, près des canons." "goto" "marie" "require" "marie_libre" "unless" "marie_greve" }
+			"choice"	{ "text" "Monter à l'Hôtel de Ville." "goto" "escalier" }
+			"choice"	{ "text" "Courir à la Conciergerie, où est Marie-Anne." "goto" "conciergerie" "require" "marie_livree" }
+		}
+
+		"piquiers"
+		{
+			"set"	"piquiers_vus"
+			"line"	{ "speaker" "piquier" "text" "Commissaire Lacombe ! La section des Piques a voté il y a une heure : nous sommes pour la Convention. Pour la Convention, tu entends ? Sa propre section." }
+			"line"	{ "speaker" "piquier" "text" "On vient chercher Hanriot et les autres. Tu marches avec nous ?" }
+			"line"	{ "speaker" "ferveur" "text" "SA PROPRE SECTION. LES INGRATS. LES LÂCHES." }
+			"line"	{ "speaker" "logique" "text" "Ou des gens qui ont compris avant toi de quel côté tombe la pluie." }
+			"choice"	{ "text" "« J'arrive. Allez devant. »" "goto" "place" }
+		}
+
+		"marie"
+		{
+			"set"	"marie_greve"
+			"line"	{ "speaker" "narrateur" "text" "Marie-Anne, trempée, un paquet de feuilles serré sous son châle pour les garder au sec." }
+			"line"	{ "speaker" "marie" "text" "Je voulais voir ça. La fin, ou le début, je ne sais pas encore." }
+			"line"	{ "speaker" "marie" "require" "lettre_remise" "text" "Anselme dit que Tallien a sorti son poignard à la tribune. Il dit que c'est grâce à un commissaire." }
+			"line"	{ "speaker" "marie" "require" "lettre_livree" "text" "Anselme dit qu'on a lu le courrier de Tallien chez Saint-Just. Il cherche qui l'a porté. Il n'a pas encore trouvé." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Elle grelotte. Elle ne partira pas avant toi." }
+			"choice"	{ "text" "« Attendez-moi ici. »" "goto" "place" }
+		}
+
+		"conciergerie"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tu cours le long des quais sous la pluie. La Conciergerie est une masse noire au bord de l'eau. Un guichetier mal réveillé entrouvre le judas." }
+			"line"	{ "speaker" "guichetier" "text" "Une libération ? À deux heures du matin ? Avec quel ordre ?" }
+			"choice"	{ "text" "Montrer le nom de Vadier, que tu tiens désormais." "goto" "fin_conciergerie_ok" "require" "tient_vadier" }
+			"choice"	{ "text" "Inventer un ordre du Comité, d'une voix sûre." "check" "rhetorique" "difficulty" "12" "type" "rouge" "success" "fin_conciergerie_ok" "failure" "conciergerie_rate" }
+			"choice"	{ "text" "Revenir à la place de Grève." "goto" "place" }
+		}
+
+		"conciergerie_rate"
+		{
+			"line"	{ "speaker" "guichetier" "text" "Pas d'ordre, pas de prisonnière. Reviens demain. Demain, ce sera peut-être un autre monde." }
+			"line"	{ "speaker" "volonte" "text" "Demain. Elle passera au Tribunal, ou les prisons s'ouvriront. Tu ne peux plus rien cette nuit." }
+			"morale"	"-1"
+			"choice"	{ "text" "Revenir à la place de Grève." "goto" "place" }
+		}
+
+		"escalier"
+		{
+			"music"	"Musique.Tension"
+			"line"	{ "speaker" "narrateur" "text" "Le grand escalier est plein de boue et de cocardes piétinées. Personne ne t'arrête : ton écharpe, ou ton air, suffit. Au premier étage, une salle, des chandelles, des hommes épuisés autour d'une table." }
+			"line"	{ "speaker" "narrateur" "text" "Robespierre est assis, une plume à la main, devant une feuille à en-tête de la Commune. Il lève les yeux. Il voit ton écharpe." }
+			"line"	{ "speaker" "robespierre" "text" "Vous êtes de quelle section, citoyen ?" }
+			"choice"	{ "text" "« Des Piques. »" "goto" "appel" }
+		}
+
+		"appel"
+		{
+			"line"	{ "speaker" "robespierre" "text" "Des Piques. Ma section. On me dit qu'elle m'abandonne." }
+			"line"	{ "speaker" "narrateur" "text" "Il tourne la feuille vers toi. « Courage, patriotes de la section des Piques. La liberté triomphe... » Il manque la signature." }
+			"line"	{ "speaker" "robespierre" "text" "Je signe, et vous la portez. Ils vous écouteront, vous. Vous êtes des leurs." }
+			"line"	{ "speaker" "ferveur" "text" "L'INCORRUPTIBLE TE PARLE. À TOI. C'EST LE PLUS BEAU JOUR DE TA VIE." }
+			"line"	{ "speaker" "spectres" "text" "Tu entends déjà, dans l'escalier, des bottes qui montent." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "text" "Sa main tremble. Il n'a pas dormi depuis deux jours. Ce n'est pas un tyran, c'est un homme fatigué qui croit encore aux mots." }
+			"choice"	{ "text" "« Signez. Je la porterai. »" "goto" "fin_robespierriste" }
+			"choice"	{ "text" "Ouvrir la porte aux bottes qui montent." "goto" "fin_thermidorien" }
+			"choice"	{ "text" "Ôter ton écharpe, la poser sur la table, et sortir." "check" "volonte" "difficulty" "10" "type" "blanc" "success" "fin_desire" "failure" "appel_rate" }
+		}
+
+		"appel_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tes doigts trouvent le nœud de l'écharpe. Ils n'arrivent pas à le défaire. Robespierre te regarde, sans comprendre." }
+			"line"	{ "speaker" "ferveur" "text" "TU NE PEUX PAS. TU N'ES RIEN SANS ELLE." }
+			"morale"	"-1"
+			"choice"	{ "text" "« Signez. Je la porterai. »" "goto" "fin_robespierriste" }
+			"choice"	{ "text" "Ouvrir la porte aux bottes qui montent." "goto" "fin_thermidorien" }
+		}
+
+		"fin_robespierriste"
+		{
+			"set"	"fin_robespierriste"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Il trempe la plume. Il écrit « Ro ». La porte s'ouvre à la volée. Un coup de feu. Robespierre s'effondre sur la feuille, la mâchoire fracassée, et le sang coule sur l'appel qu'il n'a pas fini de signer." }
+			"line"	{ "speaker" "narrateur" "text" "On t'arrache la feuille. On t'arrache ton écharpe. On t'emmène avec les autres." }
+			"line"	{ "speaker" "narrateur" "text" "Le 10 thermidor, à sept heures du soir, Robespierre monte à l'échafaud avec vingt et un de ses amis. Le 11, c'est le tour de soixante et onze hommes de la Commune." }
+			"line"	{ "speaker" "spectres" "text" "Ton nom est sur la liste du 11. Tu le lis sans trembler. Désiré Lacombe. Au moins, ils l'ont bien écrit." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Le dernier fidèle." }
+			"end"	"1"
+		}
+
+		"fin_thermidorien"
+		{
+			"set"	"fin_thermidorien"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu ouvres la porte. Les gendarmes entrent. Un coup de feu. Robespierre s'effondre sur la feuille, la mâchoire fracassée, à côté d'un « Ro » qui ne sera jamais un nom entier." }
+			"line"	{ "speaker" "narrateur" "text" "Au matin, on te félicite. Un patriote de la section des Piques, qui a ouvert la porte au bon moment. On te garde ton écharpe." }
+			"line"	{ "speaker" "narrateur" "require" "faux_rapport" "text" "Vadier te serre la main. Il a oublié ton nom, mais il se souvient de ta signature." }
+			"line"	{ "speaker" "logique" "text" "Dans un an, on appellera ça la Réaction. Les jeunes gens à cadenettes chasseront les jacobins dans les rues, à coups de gourdin. Il y aura de nouvelles listes. Tu sauras les tenir." }
+			"line"	{ "speaker" "volonte" "text" "Tu as survécu. C'est tout ce que tu as fait, mais tu l'as bien fait." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Le survivant." }
+			"end"	"1"
+		}
+
+		"fin_desire"
+		{
+			"set"	"fin_desire"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "L'écharpe glisse sur la table, à côté de la feuille. Robespierre la regarde, puis te regarde. Il ne dit rien. Tu descends l'escalier à contre-courant des bottes." }
+			"line"	{ "speaker" "narrateur" "text" "Derrière toi, un coup de feu. Tu ne te retournes pas." }
+			"line"	{ "speaker" "narrateur" "require" "marie_libre" "text" "Sur la place, sous la pluie, une femme au châle t'attend toujours. Elle ne te demande pas où est ton écharpe." }
+			"line"	{ "speaker" "narrateur" "unless" "marie_libre" "text" "Sur la place, il ne reste presque personne. La pluie, les canons abandonnés, et toi." }
+			"line"	{ "speaker" "volonte" "require" "nom" "text" "Désiré. Il commence par un D, il sent l'encre et la pluie. Cette nuit, il sent surtout la pluie." }
+			"line"	{ "speaker" "spectres" "text" "Quelque part, une femme qui chantait faux étend son linge au soleil. Tu n'as pas besoin de la voir pour savoir qu'elle sourit." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. Désiré." }
+			"end"	"1"
+		}
+
+		"fin_conciergerie_ok"
+		{
+			"set"	"fin_conciergerie"
+			"set"	"marie_sauvee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Le guichetier hésite, puis tire les verrous. Cette nuit, personne à Paris ne sait plus qui commande. C'est la seule nuit où un mensonge peut ouvrir une prison." }
+			"line"	{ "speaker" "narrateur" "text" "Marie-Anne sort dans le couloir, pâle, un châle d'emprunt sur les épaules. Elle te reconnaît." }
+			"line"	{ "speaker" "marie" "text" "C'est vous qui m'avez mise ici." }
+			"line"	{ "speaker" "volonte" "text" "Oui. Et c'est toi qui viens la chercher. Les deux sont vrais. Il faudra vivre avec les deux." }
+			"line"	{ "speaker" "narrateur" "text" "Au loin, vers l'Hôtel de Ville, un coup de feu. Vous marchez ensemble sur le quai, sans parler, jusqu'à ce que le jour se lève." }
+			"line"	{ "speaker" "narrateur" "text" "FIN. La réparation." }
 			"end"	"1"
 		}
 	}
@@ -700,10 +1435,28 @@ const MUSIC = {
   'Musique.Place': 'tambour lent, cordes frottées, « Ça ira » déformé au loin',
   'Musique.Tension': 'percussions sèches et cordes en trémolo',
   'Musique.Fin': 'accord suspendu, conclusion ouverte',
+  'Musique.Cave': 'presse qui grince, contrebasse sourde',
+  'Musique.Comite': 'clavecin désaccordé, horloge',
+  'Musique.Convention': 'rumeur de foule, orage lointain, cuivres graves',
+  'Musique.Greve': "pluie, tocsin, tambours qui s'éloignent",
 };
 const SPEAKERS = {
   marie: ['Marie-Anne Delorme', 'npc'], messager: ['Estafette du Comité', 'radio'], crieur: ['Crieur public', 'kessel'],
   porteur: ["Le porteur d'eau", 'npc'], mercier: ['Brutus Mercier', 'npc'],
+  anselme: ['Anselme Roux', 'npc'],
+  vadier: ['Vadier', 'npc'],
+  sansculotte: ['Un sans-culotte', 'npc'],
+  tricoteuse: ['Une tricoteuse', 'npc'],
+  huissier: ["L'huissier", 'radio'],
+  tallien: ['Tallien', 'npc'],
+  secretaire: ['Le secrétaire', 'npc'],
+  saintjust: ['Saint-Just', 'radio'],
+  robespierre: ['Robespierre', 'npc'],
+  assemblee: ["L'Assemblée", 'radio'],
+  garnier: ["Garnier de l'Aube", 'npc'],
+  augustin: ['Augustin Robespierre', 'npc'],
+  piquier: ['Un homme des Piques', 'npc'],
+  guichetier: ['Le guichetier', 'radio'],
 };
 const XP_PER_POINT = 3;
 const diffName = d => d <= 6 ? 'Trivial' : d <= 8 ? 'Facile' : d <= 10 ? 'Moyen' : d <= 12 ? 'Difficile' : d <= 14 ? 'Redoutable' : 'Héroïque';
@@ -725,9 +1478,12 @@ function newGame(arch) {
   startScene(ORDER[0]);
 }
 function startScene(id) {
+  // Répit entre deux scènes : +1 santé, +1 moral.
+  if (S.scene && S.scene.id !== id) { S.health = Math.min(S.maxH, S.health + 1); S.morale = Math.min(S.maxM, S.morale + 1); }
   S.scene = SCENES[id];
   $('log').innerHTML = '';
-  $('sceneTitle').textContent = `Scène ${ORDER.indexOf(id) + 1} · ${S.scene.title}`;
+  const num = (id.match(/scene0*(\d+)/) || [])[1] || (ORDER.indexOf(id) + 1);
+  $('sceneTitle').textContent = `Scène ${num} · ${S.scene.title}`;
   renderDossier(); enter(S.scene.start);
 }
 const passes = pairs => getAll(pairs, 'require').every(f => S.flags.has(f)) && !getAll(pairs, 'unless').some(f => S.flags.has(f));
@@ -782,7 +1538,7 @@ function enter(id) {
     else if (k === 'line' && passes(v)) say(v);
   }
   if (S.over) return;
-  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', S.scene.next); }
+  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', get(node, 'next') || S.scene.next); }
   renderChoices();
 }
 
@@ -833,7 +1589,7 @@ function choose(c, key) {
 function endPanel(title, next) {
   $('choices').innerHTML = '';
   const nextBtn = next && SCENES[next] ? `<button class="ghost" type="button" id="nextScene">Scène suivante : ${esc(SCENES[next].title)}</button>` : '';
-  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du prototype. La suite n'est pas encore écrite.</span>` : '');
+  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du jeu.</span>` : '');
   add(`<div class="end"><b>${title}</b>${more}<span>Ce que le jeu retient : ${[...S.flags].filter(f => !f.startsWith('vu_')).map(esc).join(', ') || 'rien'}.</span><div class="toolbar">${nextBtn}<button class="ghost" type="button" id="replay">Rejouer avec un autre agent</button></div></div>`);
   if (nextBtn) $('nextScene').onclick = () => startScene(next);
   $('replay').onclick = showStart;
