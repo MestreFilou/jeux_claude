@@ -14,6 +14,7 @@
 	{
 		"place"
 		{
+			"hub"	"1"
 			"music"	"Musique.Place"
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "text" "Dehors, l'air sent le crottin et la fumée de bois. Au centre de la place des Piques, là où se dressait le roi de bronze à cheval, il ne reste qu'un socle vide couvert d'affiches. Un crieur public y est grimpé, une feuille à la main. Près de la fontaine, un vieux porteur d'eau remplit ses seaux sans se presser." }
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "require" "verification" "text" "Au coin de la rue, deux gardes nationaux attendent avec un homme en écharpe tricolore. Un bandage lui barre la mâchoire." }

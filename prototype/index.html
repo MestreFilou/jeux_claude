@@ -144,7 +144,8 @@ button { font: inherit; cursor: pointer; }
 //             + success + failure ; require / unless pour l'afficher ou non
 //   "set"     drapeau mis à 1 en entrant dans le noeud
 //   "health" / "morale"  modifie les jauges en entrant dans le noeud
-//   "end"     fin de scène
+//   "hub"     noeud où l'on peut fermer le dialogue et explorer le décor (Unreal)
+//   "end"     fin de scène (+ "next" pour choisir la scène suivante)
 
 "dialogue"
 {
@@ -192,6 +193,7 @@ button { font: inherit; cursor: pointer; }
 
 		"bureau"
 		{
+			"hub"	"1"
 			"line"	{ "speaker" "narrateur" "unless" "vu_bureau" "text" "La salle du comité de surveillance. Une table chargée de registres, un encrier renversé, l'affiche de la loi des suspects clouée au mur. Sur une chaise, les poignets liés par une corde, une femme te regarde. Ton écharpe tricolore n'est plus autour de ta taille." }
 			"line"	{ "speaker" "narrateur" "require" "vu_bureau" "text" "La salle. Les registres. La femme sur sa chaise, qui ne te quitte pas des yeux." }
 			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau" "text" "Du sang séché sur le pommeau du sabre posé sur la table. Pas beaucoup. Assez." }
@@ -450,6 +452,7 @@ button { font: inherit; cursor: pointer; }
 	{
 		"place"
 		{
+			"hub"	"1"
 			"music"	"Musique.Place"
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "text" "Dehors, l'air sent le crottin et la fumée de bois. Au centre de la place des Piques, là où se dressait le roi de bronze à cheval, il ne reste qu'un socle vide couvert d'affiches. Un crieur public y est grimpé, une feuille à la main. Près de la fontaine, un vieux porteur d'eau remplit ses seaux sans se presser." }
 			"line"	{ "speaker" "narrateur" "unless" "vu_place" "require" "verification" "text" "Au coin de la rue, deux gardes nationaux attendent avec un homme en écharpe tricolore. Un bandage lui barre la mâchoire." }

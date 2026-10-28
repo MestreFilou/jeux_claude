@@ -13,7 +13,8 @@
 //             + success + failure ; require / unless pour l'afficher ou non
 //   "set"     drapeau mis à 1 en entrant dans le noeud
 //   "health" / "morale"  modifie les jauges en entrant dans le noeud
-//   "end"     fin de scène
+//   "hub"     noeud où l'on peut fermer le dialogue et explorer le décor (Unreal)
+//   "end"     fin de scène (+ "next" pour choisir la scène suivante)
 
 "dialogue"
 {
@@ -61,6 +62,7 @@
 
 		"bureau"
 		{
+			"hub"	"1"
 			"line"	{ "speaker" "narrateur" "unless" "vu_bureau" "text" "La salle du comité de surveillance. Une table chargée de registres, un encrier renversé, l'affiche de la loi des suspects clouée au mur. Sur une chaise, les poignets liés par une corde, une femme te regarde. Ton écharpe tricolore n'est plus autour de ta taille." }
 			"line"	{ "speaker" "narrateur" "require" "vu_bureau" "text" "La salle. Les registres. La femme sur sa chaise, qui ne te quitte pas des yeux." }
 			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau" "text" "Du sang séché sur le pommeau du sabre posé sur la table. Pas beaucoup. Assez." }

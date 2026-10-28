@@ -1,0 +1,18 @@
+name: Dialogues
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Vérifier les dialogues (liens, compétences, impasses)
+        run: python3 outils/verifier_dialogues.py --parties 5000
+      - name: Construire le prototype
+        run: python3 prototype/build.py
