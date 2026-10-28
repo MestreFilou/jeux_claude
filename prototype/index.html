@@ -1,0 +1,880 @@
+<title>Huit Thermidor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IM+Fell+English+SC&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : à gauche le dossier du commissaire (compétences, jauges, musique), à droite la colonne de dialogue qui défile, comme Disco Elysium. Un seul thème sombre, assumé : Paris à la chandelle, été 1794. */
+:root {
+  color-scheme: dark;
+  --bg: #100d0c;
+  --panel: #1a1513;
+  --line: #352a22;
+  --fg: #e2d8c6;
+  --muted: #948878;
+  --accent: #8fa6cf;      /* bleu de la cocarde, terni */
+  --you: #e8c27a;
+  --int: #6aa8e0;         /* Intellect */
+  --psy: #a58be0;         /* Psyché */
+  --phy: #e0736a;         /* Physique */
+  --mot: #e0c45a;         /* Motricité */
+  --ok: #7fc48b;
+  --ko: #e0736a;
+  --f-body: "Spectral", Georgia, "Times New Roman", serif;
+  --f-label: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 17px; line-height: 1.55;
+  background-image: radial-gradient(ellipse at 20% 0%, rgba(232,170,90,.09), transparent 55%); background-attachment: fixed;
+}
+.app {
+  display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 28px;
+  max-width: 1100px; margin: 0 auto; min-height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px;
+}
+@media (max-width: 760px) { .app { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+
+/* Dossier */
+.dossier { display: flex; flex-direction: column; gap: 18px; align-self: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+@media (max-width: 760px) { .dossier { position: static; } }
+.brand { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--muted); }
+.brand b { display: block; font-size: 30px; letter-spacing: .06em; color: var(--fg); line-height: 1.1; }
+.meters { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; font-family: var(--f-label); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+.pips { display: flex; gap: 4px; }
+.pip { width: 14px; height: 14px; border: 1px solid var(--line); background: transparent; }
+.pip.on.h { background: var(--phy); border-color: var(--phy); }
+.pip.on.m { background: var(--psy); border-color: var(--psy); }
+.skills { display: grid; gap: 14px; }
+.attr h3 { margin: 0 0 4px; font-family: var(--f-label); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; }
+.attr ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.attr li { display: flex; justify-content: space-between; font-family: var(--f-label); font-size: 15px; letter-spacing: .04em; }
+.attr li span:last-child { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+.music { border-top: 1px solid var(--line); padding-top: 12px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); line-height: 1.5; }
+.music strong { color: var(--accent); font-weight: 500; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; cursor: pointer; }
+.ghost { background: none; border: 1px solid var(--line); color: var(--muted); font-family: var(--f-label); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; padding: 6px 10px; }
+.ghost:hover, .ghost:focus-visible { color: var(--fg); border-color: var(--muted); }
+
+/* Colonne de dialogue */
+.column { min-width: 0; display: flex; flex-direction: column; gap: 14px; max-width: 640px; }
+.scene-title { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.log { display: flex; flex-direction: column; gap: 12px; }
+.entry { animation: in .35s ease-out both; }
+@keyframes in { from { opacity: .2; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .entry { animation: none; } }
+.who { font-family: var(--f-label); font-weight: 400; text-transform: uppercase; letter-spacing: .06em; font-size: 16px; margin-right: 6px; }
+.tag { font-family: var(--f-mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
+.narr { color: var(--fg); font-style: italic; opacity: .92; }
+.you .who { color: var(--you); }
+.you { color: #bfb7a3; }
+.npc .who { color: var(--fg); }
+.radio .who { color: var(--accent); }
+.radio .txt { color: var(--accent); }
+.int .who { color: var(--int); } .psy .who { color: var(--psy); } .phy .who { color: var(--phy); } .mot .who { color: var(--mot); }
+.roll { font-family: var(--f-mono); font-size: 13px; border-left: 2px solid var(--line); padding: 4px 0 4px 10px; color: var(--muted); }
+.roll.ok b { color: var(--ok); } .roll.ko b { color: var(--ko); }
+.dice { display: inline-flex; gap: 4px; vertical-align: middle; margin: 0 4px; }
+.die { width: 20px; height: 20px; border: 1px solid var(--muted); display: inline-grid; place-items: center; font-size: 12px; color: var(--fg); }
+.gauge { font-family: var(--f-mono); font-size: 13px; color: var(--ko); }
+
+.choices { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; border-top: 1px solid var(--line); padding-top: 12px; }
+.choice { display: flex; gap: 10px; width: 100%; text-align: left; background: none; border: 0; color: #c9a75d; padding: 6px 4px; font-family: var(--f-body); font-size: 17px; line-height: 1.45; }
+.choice:hover, .choice:focus-visible { color: var(--you); background: rgba(232,194,122,.06); outline: none; }
+.choice .n { font-family: var(--f-mono); font-size: 14px; color: var(--muted); padding-top: 2px; min-width: 1.6em; }
+.choice .chk { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .06em; font-size: 14px; margin-right: 6px; }
+.choice .chk.blanc { color: var(--fg); } .choice .chk.rouge { color: var(--ko); }
+.choice[disabled] { color: #5d625f; cursor: not-allowed; background: none; }
+.choice[disabled] .chk { color: #5d625f; }
+
+.start { display: grid; gap: 12px; }
+.start p { margin: 0; max-width: 60ch; }
+.archs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.arch { text-align: left; background: var(--panel); border: 1px solid var(--line); color: var(--fg); padding: 12px; display: grid; gap: 4px; }
+.arch:hover, .arch:focus-visible { border-color: var(--accent); outline: none; }
+.arch b { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .08em; font-size: 17px; }
+.arch span { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.end { border: 1px solid var(--line); background: var(--panel); padding: 14px; display: grid; gap: 8px; }
+.end b { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .12em; }
+.xp { font-family: var(--f-mono); font-size: 12px; color: var(--muted); display: grid; gap: 6px; }
+.xpbar { height: 4px; background: var(--line); }
+.xpbar i { display: block; height: 100%; background: var(--you); }
+.xp .pts { color: var(--you); }
+.plus { background: none; border: 1px solid var(--you); color: var(--you); font-family: var(--f-mono); font-size: 12px; line-height: 1; padding: 2px 6px; margin-left: 8px; }
+.plus:hover, .plus:focus-visible { background: var(--you); color: var(--bg); outline: none; }
+.attr li .lv { display: inline-flex; align-items: center; }
+.kessel .who { color: var(--accent); } .kessel .txt { color: var(--accent); }
+.note { font-size: 13px; color: var(--muted); font-family: var(--f-mono); }
+</style>
+
+<div class="app">
+  <aside class="dossier" aria-label="Dossier de l'agent">
+    <div class="brand">Comité de surveillance, section des Piques<b id="agentName">Agent sans masque</b></div>
+    <div class="meters">
+      <span>Santé</span><div class="pips" id="health"></div>
+      <span>Moral</span><div class="pips" id="morale"></div>
+    </div>
+    <div class="skills" id="skills"></div>
+    <div class="xp" id="xp"></div>
+    <div class="music" id="music">♪ Aucune musique</div>
+    <div class="toolbar"><button class="ghost" id="restart" type="button">Recommencer</button></div>
+  </aside>
+
+  <main class="column">
+    <div class="scene-title" id="sceneTitle"></div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <ul class="choices" id="choices"></ul>
+  </main>
+</div>
+
+<script type="text/plain" class="kv">// Scène 01 : le réveil au comité de surveillance
+// Paris, section des Piques, 8 thermidor an II (26 juillet 1794), le matin
+// où Robespierre prononce son dernier discours à la Convention.
+//
+// Format texte à accolades. Le même fichier est lu par le prototype
+// navigateur et sera importé dans Unreal Engine (converti en JSON).
+//
+// Clés d'un noeud :
+//   "music"   identifiant d'une piste de la bande-son originale
+//   "line"    réplique : speaker, text, et optionnellement passive + difficulty
+//             (test passif : niveau + 6 >= difficulté), require / unless (drapeaux)
+//   "choice"  choix : text, goto, ou check + difficulty + type (blanc / rouge)
+//             + success + failure ; require / unless pour l'afficher ou non
+//   "set"     drapeau mis à 1 en entrant dans le noeud
+//   "health" / "morale"  modifie les jauges en entrant dans le noeud
+//   "end"     fin de scène
+
+"dialogue"
+{
+	"id"	"scene01"
+	"title"	"Comité de surveillance de la section des Piques, 8 thermidor an II, 6 h"
+	"next"	"scene02"
+	"start"	"reveil"
+
+	"nodes"
+	{
+		"reveil"
+		{
+			"music"	"Musique.Reveil"
+			"line"	{ "speaker" "narrateur" "text" "Le plancher sent la cire froide et le vin renversé. Au-dessus de toi, une chandelle achève de se noyer dans sa propre cire." }
+			"line"	{ "speaker" "endurance" "passive" "endurance" "difficulty" "6" "text" "Ta bouche a le goût du fer. Tu as dormi tout habillé, la cocarde de travers. Encore." }
+			"line"	{ "speaker" "ferveur" "passive" "ferveur" "difficulty" "8" "text" "DEBOUT, CITOYEN. LA PATRIE NE DORT PAS. LA VIGILANCE EST UNE VERTU." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "10" "text" "Tu rêvais d'une charrette. Elle roulait vers l'échafaud, et tous ceux qui étaient à bord portaient ton visage." }
+			"choice"	{ "text" "Te relever." "goto" "bureau" }
+			"choice"	{ "text" "Te souvenir de ton nom." "check" "volonte" "difficulty" "8" "type" "rouge" "success" "nom_ok" "failure" "nom_rate" }
+			"choice"	{ "text" "Rester au sol. Juste une minute." "goto" "sol" }
+		}
+
+		"sol"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Une minute passe. Dehors, rue Saint-Honoré, les premières charrettes de légumes cahotent sur les pavés." }
+			"line"	{ "speaker" "volonte" "text" "Si tu restes là, personne ne viendra te relever. Personne ne vient jamais." }
+			"morale"	"-1"
+			"choice"	{ "text" "Bon. D'accord. Te relever." "goto" "bureau" }
+		}
+
+		"nom_ok"
+		{
+			"set"	"nom"
+			"line"	{ "speaker" "volonte" "text" "Tu avais un nom avant d'avoir une fonction. Il commence par un D. Il sent l'encre et la pluie. Garde-le : c'est tout ce qui t'appartient." }
+			"choice"	{ "text" "Te relever, avec ce D dans la poche." "goto" "bureau" }
+		}
+
+		"nom_rate"
+		{
+			"line"	{ "speaker" "volonte" "text" "Rien. Un trou blanc, propre, comme si quelqu'un l'avait gratté au canif." }
+			"line"	{ "speaker" "ferveur" "text" "UN NOM EST UNE VANITÉ D'ANCIEN RÉGIME. TU ES UN CITOYEN. CELA SUFFIT." }
+			"morale"	"-1"
+			"choice"	{ "text" "Te relever." "goto" "bureau" }
+		}
+
+		"bureau"
+		{
+			"line"	{ "speaker" "narrateur" "unless" "vu_bureau" "text" "La salle du comité de surveillance. Une table chargée de registres, un encrier renversé, l'affiche de la loi des suspects clouée au mur. Sur une chaise, les poignets liés par une corde, une femme te regarde. Ton écharpe tricolore n'est plus autour de ta taille." }
+			"line"	{ "speaker" "narrateur" "require" "vu_bureau" "text" "La salle. Les registres. La femme sur sa chaise, qui ne te quitte pas des yeux." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau" "text" "Du sang séché sur le pommeau du sabre posé sur la table. Pas beaucoup. Assez." }
+			"set"	"vu_bureau"
+			"choice"	{ "text" "Parler à la femme ligotée." "goto" "marie" }
+			"choice"	{ "text" "Chercher ton écharpe et tes papiers." "check" "perception" "difficulty" "10" "type" "blanc" "success" "carte_ok" "failure" "carte_rate" "unless" "carte" }
+			"choice"	{ "text" "Fouiller sous la table, là où elle a parlé d'une bouteille." "goto" "carte_ok" "require" "indice_bureau" "unless" "carte" }
+			"choice"	{ "text" "Examiner le sabre." "check" "logique" "difficulty" "12" "type" "blanc" "success" "sabre_ok" "failure" "sabre_rate" "unless" "sabre_vu" }
+			"choice"	{ "text" "Répondre aux coups frappés à la porte." "goto" "messager" "require" "vu_marie" "unless" "messager_fait" }
+			"choice"	{ "text" "Décider de ce que tu fais d'elle." "goto" "decision" "require" "parle_marie" }
+		}
+
+		"carte_ok"
+		{
+			"set"	"carte"
+			"set"	"identite"
+			"line"	{ "speaker" "narrateur" "text" "Sous la table, à côté d'une bouteille de calvados vide : ton écharpe tricolore, roulée en boule, et ta carte de civisme. « Désiré Lacombe, commissaire du comité de surveillance, section des Piques. » L'encre a bavé sur le cachet." }
+			"line"	{ "speaker" "ferveur" "text" "DÉSIRÉ LACOMBE. COMMISSAIRE. VOILÀ CE QUE TU ES. RIEN DE PLUS. RIEN DE MOINS." }
+			"choice"	{ "text" "Garder l'écharpe à la main." "goto" "bureau" }
+		}
+
+		"carte_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tu fouilles les registres, la corbeille, le dessous de la chaise. La pièce tangue." }
+			"line"	{ "speaker" "endurance" "text" "Penche-toi encore une fois et tu vomis sur tes souliers." }
+			"health"	"-1"
+			"choice"	{ "text" "Laisser tomber pour l'instant." "goto" "bureau" }
+		}
+
+		"sabre_ok"
+		{
+			"set"	"sabre_vu"
+			"set"	"autre_personne"
+			"line"	{ "speaker" "logique" "text" "Elle n'a aucune blessure. Le sang est sur le pommeau, pas sur la lame : quelqu'un a été frappé pour être arrêté, pas pour être tué. Quelqu'un qui est passé ici cette nuit et qui n'y est plus." }
+			"choice"	{ "text" "Retenir ça." "goto" "bureau" }
+		}
+
+		"sabre_rate"
+		{
+			"set"	"sabre_vu"
+			"line"	{ "speaker" "logique" "text" "Du sang. Un sabre. Une femme ligotée. La conclusion s'impose d'elle-même, et elle te dégoûte." }
+			"morale"	"-1"
+			"choice"	{ "text" "Reposer le sabre." "goto" "bureau" }
+		}
+
+		"marie"
+		{
+			"set"	"parle_marie"
+			"line"	{ "speaker" "marie" "unless" "vu_marie" "text" "Vous êtes réveillé. Bien. Vous allez me détacher, maintenant ?" }
+			"line"	{ "speaker" "marie" "require" "vu_marie" "text" "Quoi encore ?" }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "10" "unless" "vu_marie" "text" "Elle a peur de toi. Mais elle a plus peur encore de la porte derrière toi. Elle attend quelqu'un, et ce n'est pas un ami." }
+			"set"	"vu_marie"
+			"choice"	{ "text" "« Qui êtes-vous ? »" "goto" "marie_qui" "unless" "marie_qui" }
+			"choice"	{ "text" "« Qu'est-ce que je vous ai fait ? »" "goto" "marie_quoi" "unless" "marie_quoi" }
+			"choice"	{ "text" "Mentir : « Je me souviens de tout. Avouez. »" "check" "rhetorique" "difficulty" "10" "type" "rouge" "success" "marie_mensonge_ok" "failure" "marie_mensonge_rate" }
+			"choice"	{ "text" "Abattre ton poing sur la table pour l'impressionner." "check" "poigne" "difficulty" "8" "type" "rouge" "success" "marie_coup_ok" "failure" "marie_coup_rate" }
+			"choice"	{ "text" "« Ce sang sur le sabre. À qui est-il ? »" "goto" "marie_sang" "require" "autre_personne" "unless" "marie_sang" }
+			"choice"	{ "text" "Revenir au milieu de la pièce." "goto" "bureau" }
+		}
+
+		"marie_qui"
+		{
+			"set"	"marie_qui"
+			"set"	"indice_bureau"
+			"line"	{ "speaker" "marie" "text" "Marie-Anne Delorme, lingère, rue de la Sourdière. Vous m'avez arrêtée hier soir comme suspecte. Ensuite vous avez bu le calvados que vous aviez saisi chez moi. La bouteille doit encore être sous la table." }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "10" "text" "Elle récite. Une phrase préparée. Le calvados est vrai, mais ce n'est pas toute l'histoire." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_quoi"
+		{
+			"set"	"marie_quoi"
+			"line"	{ "speaker" "marie" "text" "Rien. C'est ça le pire. Vous avez parlé toute la nuit. De votre femme. D'avant. Vous avez pleuré, alors vous avez arraché votre écharpe." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Avant. Il y avait un avant. Un jardin à Meaux, une odeur de pain, et puis ce matin de janvier où la tête du roi est tombée, et où tu as crié avec la foule." }
+			"line"	{ "speaker" "poigne" "passive" "poigne" "difficulty" "10" "text" "Pleurer. Devant une suspecte. Tu es la honte du comité." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_sang"
+		{
+			"set"	"marie_sang"
+			"line"	{ "speaker" "marie" "text" "Un autre commissaire est venu vers trois heures. Il voulait m'emmener à la Conciergerie avant le jour. Vous avez refusé. Il a insisté." }
+			"line"	{ "speaker" "marie" "text" "Vous l'avez frappé avec le pommeau. Il est parti en jurant qu'il reviendrait avec la garde." }
+			"line"	{ "speaker" "logique" "text" "Voilà pourquoi elle regarde la porte. Et voilà pourquoi tu as mal à la main droite." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_mensonge_ok"
+		{
+			"set"	"secret_presse"
+			"line"	{ "speaker" "narrateur" "text" "Elle pâlit." }
+			"line"	{ "speaker" "marie" "text" "Alors vous savez, pour la presse. Je ne fais qu'imprimer. Des feuilles qui demandent la clémence, comme celles de Desmoulins. Ce n'est pas un crime d'avoir pitié." }
+			"line"	{ "speaker" "logique" "text" "Des libelles pour l'indulgence. Desmoulins a été guillotiné pour moins que ça, en germinal." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_mensonge_rate"
+		{
+			"line"	{ "speaker" "marie" "text" "Vous ne vous souvenez même pas de votre propre nom. Vous me l'avez demandé trois fois cette nuit." }
+			"line"	{ "speaker" "volonte" "text" "Elle a raison, et elle le sait. Ça fait mal." }
+			"morale"	"-1"
+			"choice"	{ "text" "Encaisser." "goto" "marie" }
+		}
+
+		"marie_coup_ok"
+		{
+			"set"	"brutal"
+			"line"	{ "speaker" "narrateur" "text" "Ton poing s'abat sur la table. L'encrier saute. Elle sursaute, et ses yeux se ferment un instant." }
+			"line"	{ "speaker" "ferveur" "text" "BIEN. LA TERREUR N'EST AUTRE CHOSE QUE LA JUSTICE PROMPTE, SÉVÈRE, INFLEXIBLE." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Tu viens de perdre quelque chose avec elle. Ça ne reviendra pas." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_coup_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Ton poing rate le plat de la table et ton poignet heurte l'angle. Un craquement sec. Marie-Anne ne bouge même pas." }
+			"line"	{ "speaker" "endurance" "text" "Ça, tu vas le sentir toute la journée." }
+			"health"	"-1"
+			"choice"	{ "text" "Serrer les dents." "goto" "marie" }
+		}
+
+		"messager"
+		{
+			"music"	"Musique.Tension"
+			"set"	"messager_fait"
+			"line"	{ "speaker" "narrateur" "text" "Trois coups secs contre la porte. Une voix à travers le bois :" }
+			"line"	{ "speaker" "messager" "text" "Citoyen commissaire ! Le Comité de sûreté générale réclame ton rapport sur la suspecte Delorme. Réponds !" }
+			"line"	{ "speaker" "ferveur" "passive" "ferveur" "difficulty" "6" "text" "RÉPONDS. LE SILENCE EST UN AVEU." }
+			"choice"	{ "text" "« Ici le commissaire Lacombe. Tout est en ordre. »" "goto" "messager_ok" "require" "identite" }
+			"choice"	{ "text" "« Ici le commissaire... euh... »" "goto" "messager_bafouille" "unless" "identite" }
+			"choice"	{ "text" "Prendre une voix d'ivrogne : « Le commissaire est sorti. Repasse plus tard. »" "check" "sangfroid" "difficulty" "12" "type" "rouge" "success" "messager_imite_ok" "failure" "messager_imite_rate" }
+			"choice"	{ "text" "Ne pas répondre." "goto" "messager_silence" }
+		}
+
+		"messager_ok"
+		{
+			"set"	"transfert"
+			"line"	{ "speaker" "messager" "text" "Bien, citoyen. Une charrette viendra la prendre pour la Conciergerie dans une heure." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Derrière toi, Marie-Anne vient d'arrêter de respirer." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_bafouille"
+		{
+			"set"	"verification"
+			"line"	{ "speaker" "messager" "text" "Tu ne sais plus ton nom, commissaire ? Le Comité saura s'en souvenir pour toi. J'envoie la garde." }
+			"morale"	"-1"
+			"choice"	{ "text" "Écouter ses pas s'éloigner, la main moite." "goto" "bureau" }
+		}
+
+		"messager_imite_ok"
+		{
+			"set"	"temps_gagne"
+			"line"	{ "speaker" "messager" "text" "Encore saoul, celui-là... Je repasserai à midi." }
+			"line"	{ "speaker" "sangfroid" "text" "Midi. Assez pour disparaître. Ou pour tout réparer." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_imite_rate"
+		{
+			"set"	"verification"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix déraille au milieu du mot « sorti »." }
+			"line"	{ "speaker" "messager" "text" "Lacombe ? C'est toi ? Bon. Le Comité sera informé que son commissaire joue la comédie." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_silence"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Les pas s'éloignent dans l'escalier. Le silence qui suit est épais, presque solide." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "8" "text" "Dans ce silence, une voix qui ne vient de nulle part : « Il n'est pas trop tard pour toi. Pas encore. »" }
+			"choice"	{ "text" "Faire comme si tu n'avais rien entendu." "goto" "bureau" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Le couteau qui coupera sa corde est à ta ceinture. Tu le sais sans chercher." }
+			"line"	{ "speaker" "logique" "require" "transfert" "text" "La charrette arrive dans une heure. Ce que tu décides, décide-le vite." }
+			"line"	{ "speaker" "logique" "require" "verification" "text" "La garde arrive. Pour elle, et pour toi." }
+			"choice"	{ "text" "La détacher." "goto" "fin_liberte" }
+			"choice"	{ "text" "La garder pour la charrette." "goto" "fin_transfert" }
+			"choice"	{ "text" "« Montrez-moi votre presse. Je veux lire, moi aussi. »" "goto" "fin_resistance" "require" "secret_presse" }
+			"choice"	{ "text" "Nouer ton écharpe et redevenir le commissaire Lacombe." "check" "volonte" "difficulty" "14" "type" "rouge" "success" "fin_echarpe_ok" "failure" "fin_echarpe_rate" "require" "carte" }
+			"choice"	{ "text" "Pas encore." "goto" "bureau" }
+		}
+
+		"fin_liberte"
+		{
+			"set"	"marie_libre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La corde tombe. Marie-Anne frotte ses poignets sans te quitter des yeux." }
+			"line"	{ "speaker" "marie" "text" "Vous avez dit cette nuit que vous vouliez redevenir quelqu'un de bien. Je ne pensais pas que vous vous en souviendriez." }
+			"line"	{ "speaker" "marie" "require" "brutal" "text" "Mais ne me touchez plus jamais." }
+			"line"	{ "speaker" "narrateur" "text" "Elle sort. Rue Saint-Honoré, le jour se lève sur une ville qui compte ses suspects." }
+			"end"	"1"
+		}
+
+		"fin_transfert"
+		{
+			"set"	"marie_livree"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "marie" "text" "D'accord. Vous savez ce qu'on fait des gens, à la Conciergerie ? Non. Vous avez oublié ça aussi." }
+			"line"	{ "speaker" "ferveur" "text" "LA LOI EST RESPECTÉE. TU AS BIEN AGI, COMMISSAIRE." }
+			"line"	{ "speaker" "volonte" "text" "Alors pourquoi tes mains tremblent-elles ?" }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_resistance"
+		{
+			"set"	"marie_libre"
+			"set"	"contact_resistance"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "marie" "text" "Rue de la Sourdière, la cave sous la lingerie. Frappez trois fois, puis deux. Et venez sans votre écharpe." }
+			"line"	{ "speaker" "spectres" "text" "Une colombe dessinée au charbon sur une porte. Tu l'as déjà vue. Dans un rêve, ou dans une autre vie." }
+			"line"	{ "speaker" "ferveur" "text" "TRAHISON. TRAHISON. TRAHISON." }
+			"end"	"1"
+		}
+
+		"fin_echarpe_ok"
+		{
+			"set"	"echarpe_portee"
+			"set"	"marie_attachee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu noues l'écharpe. Le tissu serre ta taille comme une main. Le monde redevient simple : il y a les patriotes, et il y a les suspects." }
+			"line"	{ "speaker" "ferveur" "text" "SALUT ET FRATERNITÉ, CITOYEN LACOMBE." }
+			"line"	{ "speaker" "volonte" "text" "Toutes les voix se taisent. Tout devient simple. C'est exactement ça qui devrait te faire peur." }
+			"end"	"1"
+		}
+
+		"fin_echarpe_rate"
+		{
+			"set"	"marie_attachee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu ramasses l'écharpe. Tes mains refusent de la nouer." }
+			"line"	{ "speaker" "spectres" "text" "Dans la lumière grise, les trois couleurs ressemblent à trois bandes de linge sale. Aucune ne te ressemble." }
+			"line"	{ "speaker" "narrateur" "text" "Tu la reposes sur la table. Marie-Anne te regarde comme si elle te voyait pour la première fois." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+	}
+}
+</script>
+<script type="text/plain" class="kv">// Scène 02 : la place des Piques
+// Même format que la scène 01. Les drapeaux posés dans la scène 01 sont conservés
+// (marie_libre, marie_livree, marie_attachee, contact_resistance, echarpe_portee,
+// verification, temps_gagne, autre_personne, marie_sang, nom, brutal...).
+// Contexte : ce 8 thermidor, Robespierre parle à la Convention. Il tombera le lendemain.
+
+"dialogue"
+{
+	"id"	"scene02"
+	"title"	"Place des Piques, 8 thermidor an II, 6 h 40"
+	"start"	"place"
+
+	"nodes"
+	{
+		"place"
+		{
+			"music"	"Musique.Place"
+			"line"	{ "speaker" "narrateur" "unless" "vu_place" "text" "Dehors, l'air sent le crottin et la fumée de bois. Au centre de la place des Piques, là où se dressait le roi de bronze à cheval, il ne reste qu'un socle vide couvert d'affiches. Un crieur public y est grimpé, une feuille à la main. Près de la fontaine, un vieux porteur d'eau remplit ses seaux sans se presser." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_place" "require" "verification" "text" "Au coin de la rue, deux gardes nationaux attendent avec un homme en écharpe tricolore. Un bandage lui barre la mâchoire." }
+			"line"	{ "speaker" "narrateur" "unless" "vu_place" "unless" "verification" "text" "Adossé à une porte cochère, un homme en écharpe tricolore te regarde arriver. Un bandage lui barre la mâchoire, et il ne cherche pas à le cacher." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "8" "unless" "vu_place" "text" "Le bandage est récent. Une tache brune a traversé le linge. Ce visage, tu le connais : Brutus Mercier, commissaire comme toi." }
+			"line"	{ "speaker" "logique" "passive" "logique" "difficulty" "8" "require" "autre_personne" "unless" "vu_place" "text" "Le sang sur ton pommeau. Le voilà, son propriétaire." }
+			"line"	{ "speaker" "ferveur" "passive" "ferveur" "difficulty" "6" "unless" "vu_place" "text" "SALUE TON FRÈRE. L'UNITÉ EST LA FORCE DE LA RÉPUBLIQUE." }
+			"line"	{ "speaker" "ferveur" "require" "echarpe_portee" "unless" "vu_place" "text" "L'ÉCHARPE AUTOUR DE TA TAILLE. TOUT EST À SA PLACE. TOI AUSSI." }
+			"line"	{ "speaker" "narrateur" "require" "vu_place" "text" "La place. Le crieur sur son socle. Le porteur d'eau. Mercier qui attend." }
+			"set"	"vu_place"
+			"choice"	{ "text" "Écouter le crieur public." "goto" "crieur" "unless" "crieur_vu" }
+			"choice"	{ "text" "T'approcher du porteur d'eau." "goto" "porteur" "unless" "porteur_vu" }
+			"choice"	{ "text" "Aller voir Mercier." "goto" "agent" }
+		}
+
+		"crieur"
+		{
+			"set"	"crieur_vu"
+			"line"	{ "speaker" "crieur" "text" "Citoyens ! Décret de la Convention ! Sont ennemis du peuple ceux qui cherchent à inspirer le découragement, à dépraver les mœurs, à altérer la pureté et l'énergie des principes révolutionnaires ! Aux conspirateurs, la loi n'accorde point de défenseurs !" }
+			"line"	{ "speaker" "crieur" "text" "Et aujourd'hui, à la Convention, l'Incorruptible prend la parole ! On dit qu'il a une liste !" }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "10" "text" "« Altérer l'énergie des principes. » Une phrase si large qu'on peut y faire entrer n'importe qui. Toi compris." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Derrière le crieur, le socle vide. Tu vois encore le roi de bronze, et les cordes qu'on lui a passées au cou, en août 92, pendant que la foule chantait." }
+			"line"	{ "speaker" "ferveur" "text" "LA CONVENTION A RAISON. LA RÉPUBLIQUE A TOUJOURS RAISON." }
+			"line"	{ "speaker" "volonte" "require" "nom" "text" "Une liste. Un nom qui commence par un D. Assure-toi qu'il n'y soit pas." }
+			"choice"	{ "text" "Détourner les yeux." "goto" "place" }
+		}
+
+		"porteur"
+		{
+			"set"	"porteur_vu"
+			"line"	{ "speaker" "narrateur" "text" "Le porteur d'eau pose ses seaux. Sous le bonnet rouge, des yeux trop doux pour un sans-culotte." }
+			"line"	{ "speaker" "porteur" "text" "Le petit Lacombe. Tu as grandi, et tu as mal tourné. Tu ne me reconnais pas ? Tu servais ma messe, à Meaux." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "8" "text" "Une odeur d'encens froid. Une voûte de pierre. Il a vu ton avant. Il le porte en lui comme une pierre dans une poche." }
+			"choice"	{ "text" "Lui demander qui tu étais." "check" "empathie" "difficulty" "10" "type" "blanc" "success" "porteur_ok" "failure" "porteur_rate" }
+			"choice"	{ "text" "Lui demander ses papiers, comme un commissaire doit le faire." "check" "poigne" "difficulty" "8" "type" "rouge" "success" "porteur_ordre_ok" "failure" "porteur_ordre_rate" }
+			"choice"	{ "text" "Le laisser à ses seaux." "goto" "place" }
+		}
+
+		"porteur_ok"
+		{
+			"set"	"souvenir_abbe"
+			"line"	{ "speaker" "porteur" "text" "Un garçon qui voulait devenir avocat pour défendre les pauvres. Une femme, Hélène, qui chantait faux en étendant le linge. Puis Hélène est morte de la fièvre, et tu as pris l'écharpe pour ne plus rien sentir. Pas pour la République." }
+			"line"	{ "speaker" "volonte" "text" "Pour ne plus rien sentir. Les mots restent en travers de ta gorge." }
+			"choice"	{ "text" "Le remercier d'un signe de tête." "goto" "place" }
+		}
+
+		"porteur_rate"
+		{
+			"line"	{ "speaker" "porteur" "text" "Ce que tu étais, il faut avoir le courage de l'entendre. Reviens quand tu l'auras." }
+			"line"	{ "speaker" "narrateur" "text" "Il reprend ses seaux. La conversation est finie." }
+			"morale"	"-1"
+			"choice"	{ "text" "Reculer." "goto" "place" }
+		}
+
+		"porteur_ordre_ok"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Il te tend un certificat de civisme. Faux, mais bien imité. Tu le lui rends sans un mot. Il baisse la tête et reprend ses seaux." }
+			"line"	{ "speaker" "ferveur" "text" "ORDRE EXÉCUTÉ. LA SURVEILLANCE EST LE DEVOIR DE TOUS." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Tu as vu ses mains trembler. Les tiennes tremblent aussi. Elles le cachent mieux, c'est tout." }
+			"choice"	{ "text" "T'éloigner." "goto" "place" }
+		}
+
+		"porteur_ordre_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Ta voix sort trop faible. Le vieil homme te regarde, sans colère, avec quelque chose qui ressemble à de la pitié." }
+			"morale"	"-1"
+			"choice"	{ "text" "T'éloigner, vite." "goto" "place" }
+		}
+
+		"agent"
+		{
+			"music"	"Musique.Tension"
+			"line"	{ "speaker" "mercier" "unless" "agent_vu" "text" "Tiens. Lacombe. Tu te souviens de moi, ou il faut que je te rafraîchisse la mémoire ?" }
+			"line"	{ "speaker" "mercier" "require" "agent_vu" "text" "Encore toi. Décide-toi, j'ai une journée." }
+			"line"	{ "speaker" "mercier" "unless" "agent_vu" "require" "marie_livree" "text" "La Delorme part pour la Conciergerie dans une heure. Tu vois, quand tu veux." }
+			"line"	{ "speaker" "mercier" "unless" "agent_vu" "require" "marie_libre" "text" "La Delorme n'est plus au comité. Tu vas m'expliquer ça, ou tu préfères l'expliquer au Comité de sûreté générale ?" }
+			"line"	{ "speaker" "mercier" "unless" "agent_vu" "require" "marie_attachee" "text" "Ta suspecte est toujours ficelée là-haut. Je m'en charge, puisque tu n'en es pas capable." }
+			"line"	{ "speaker" "sangfroid" "passive" "sangfroid" "difficulty" "10" "unless" "agent_vu" "text" "Sa main droite ne quitte pas la garde de son sabre. Il a peur de toi. Il a raison." }
+			"set"	"agent_vu"
+			"choice"	{ "text" "« Qu'est-ce qui s'est passé cette nuit ? »" "goto" "agent_nuit" "unless" "agent_nuit" }
+			"choice"	{ "text" "« Tu es venu sans ordre à trois heures, Mercier. Ton rapport ne tiendra pas. »" "check" "rhetorique" "difficulty" "10" "type" "rouge" "success" "agent_bluff_ok" "failure" "agent_bluff_rate" "require" "marie_sang" "unless" "agent_allie" }
+			"choice"	{ "text" "Mentir : « La Delorme a été transférée par ordre du Comité. »" "check" "sangfroid" "difficulty" "12" "type" "rouge" "success" "agent_ment_ok" "failure" "agent_ment_rate" "require" "marie_libre" "unless" "agent_allie" }
+			"choice"	{ "text" "Le frapper encore. Ça a marché la première fois." "check" "poigne" "difficulty" "12" "type" "rouge" "success" "agent_coup_ok" "failure" "agent_coup_rate" }
+			"choice"	{ "text" "« Alors laisse-moi passer. »" "goto" "fin_passage" "require" "agent_allie" }
+			"choice"	{ "text" "« Je vais au Comité de sûreté générale. Je ferai mon rapport moi-même. »" "goto" "fin_comite" }
+			"choice"	{ "text" "Le contourner et filer vers la rue de la Sourdière." "goto" "fin_cave" "require" "contact_resistance" }
+			"choice"	{ "text" "Revenir au milieu de la place." "goto" "place" }
+		}
+
+		"agent_nuit"
+		{
+			"set"	"agent_nuit"
+			"line"	{ "speaker" "mercier" "text" "Tu m'as fait chercher vers trois heures. Tu disais que la Delorme imprimait des libelles, qu'il fallait l'emmener avant le jour. Quand je suis arrivé, tu as changé d'avis. Et tu m'as frappé." }
+			"line"	{ "speaker" "logique" "text" "Toi, tu l'as dénoncée. Puis tu as refusé de la livrer. Entre les deux, quelque chose s'est passé dans cette salle." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "10" "text" "La bouteille. Les larmes. L'écharpe arrachée. C'est là que tu as changé. Ou que tu es revenu." }
+			"choice"	{ "text" "Encaisser." "goto" "agent" }
+		}
+
+		"agent_bluff_ok"
+		{
+			"set"	"agent_allie"
+			"line"	{ "speaker" "narrateur" "text" "Il passe la langue sur sa lèvre fendue." }
+			"line"	{ "speaker" "mercier" "text" "D'accord. On oublie cette nuit, toi et moi. Personne n'a vu personne." }
+			"choice"	{ "text" "Continuer." "goto" "agent" }
+		}
+
+		"agent_bluff_rate"
+		{
+			"set"	"suspect"
+			"line"	{ "speaker" "mercier" "text" "Mon rapport ? Le tien, tu vas l'écrire avec quelle main ?" }
+			"morale"	"-1"
+			"choice"	{ "text" "Serrer les poings." "goto" "agent" }
+		}
+
+		"agent_ment_ok"
+		{
+			"set"	"agent_allie"
+			"line"	{ "speaker" "mercier" "text" "Par ordre du Comité ? Personne ne m'a prévenu. Encore un ordre qui s'est perdu entre deux bureaux." }
+			"line"	{ "speaker" "sangfroid" "text" "Pas un muscle n'a bougé sur ton visage. Tu ne savais pas que tu savais faire ça." }
+			"choice"	{ "text" "Continuer." "goto" "agent" }
+		}
+
+		"agent_ment_rate"
+		{
+			"set"	"suspect"
+			"line"	{ "speaker" "mercier" "text" "Tu mens aussi mal que tu bois, Lacombe." }
+			"morale"	"-1"
+			"choice"	{ "text" "Encaisser." "goto" "agent" }
+		}
+
+		"agent_coup_ok"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Ton poing part avant ta décision. Mercier s'effondre contre la porte cochère. Sur la place, personne ne lève les yeux. Le crieur continue de lire." }
+			"line"	{ "speaker" "ferveur" "text" "UN PATRIOTE A FRAPPÉ UN PATRIOTE. TU ES SUSPECT À TON TOUR." }
+			"choice"	{ "text" "Courir." "goto" "fin_fuite" }
+		}
+
+		"agent_coup_rate"
+		{
+			"set"	"suspect"
+			"line"	{ "speaker" "narrateur" "text" "Il esquive. Le plat de son sabre te cueille aux côtes, et le monde devient blanc." }
+			"line"	{ "speaker" "endurance" "text" "Debout. Debout avant qu'il frappe une deuxième fois." }
+			"health"	"-2"
+			"choice"	{ "text" "Te relever en titubant." "goto" "agent" }
+		}
+
+		"fin_comite"
+		{
+			"set"	"route_comite"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu prends la rue Saint-Honoré vers les Tuileries, Mercier sur tes talons. Les volets s'ouvrent sur ton passage, puis se referment." }
+			"line"	{ "speaker" "narrateur" "require" "suspect" "text" "Sous son bandage, Mercier sourit." }
+			"line"	{ "speaker" "narrateur" "require" "marie_livree" "text" "Une charrette vide te croise. Elle va chercher quelqu'un. Tu sais qui." }
+			"line"	{ "speaker" "ferveur" "text" "LE COMITÉ VOIT TOUT. LE COMITÉ PARDONNE À CEUX QUI PARLENT." }
+			"end"	"1"
+		}
+
+		"fin_cave"
+		{
+			"set"	"route_resistance"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu coupes par la ruelle derrière le socle vide. La voix du crieur s'éteint dans ton dos." }
+			"line"	{ "speaker" "narrateur" "text" "Rue de la Sourdière. Une cave sous la lingerie. Trois coups, puis deux. Une porte marquée d'une colombe au charbon s'entrouvre." }
+			"line"	{ "speaker" "spectres" "text" "De l'autre côté, ça sent l'encre fraîche et le café brûlé. Comme avant." }
+			"end"	"1"
+		}
+
+		"fin_passage"
+		{
+			"set"	"route_libre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "mercier" "text" "Va. Et renoue ton écharpe : on te regarde." }
+			"line"	{ "speaker" "narrateur" "text" "Tu traverses la place. Personne ne t'arrête. Pour la première fois de la matinée, personne ne sait où tu vas. Toi non plus." }
+			"line"	{ "speaker" "spectres" "text" "Demain, c'est le 9 thermidor. Quelque chose dans l'air le sait déjà." }
+			"end"	"1"
+		}
+
+		"fin_fuite"
+		{
+			"set"	"route_fugitif"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu cours. Derrière toi, quelqu'un crie « Au suspect ! », et la rue entière tourne la tête." }
+			"line"	{ "speaker" "endurance" "text" "Tes poumons brûlent. Tu ne tiendras pas longtemps à ce rythme." }
+			"line"	{ "speaker" "spectres" "text" "Quelque part, une colombe au charbon t'attend. Il faudra la trouver avant eux." }
+			"end"	"1"
+		}
+	}
+}
+</script>
+
+<script>
+// ---------- Lecteur KeyValues ----------
+function parseKV(src) {
+  const toks = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (c === '{' || c === '}') { toks.push(c); i++; continue; }
+    if (c === '"') {
+      let s = ''; i++;
+      while (i < src.length && src[i] !== '"') { if (src[i] === '\\' && i + 1 < src.length) { i++; s += src[i] === 'n' ? '\n' : src[i]; } else s += src[i]; i++; }
+      i++; toks.push({ s }); continue;
+    }
+    let s = ''; while (i < src.length && !/[\s{}"]/.test(src[i])) s += src[i++]; toks.push({ s });
+  }
+  let p = 0;
+  function block() {
+    const out = [];
+    while (p < toks.length && toks[p] !== '}') {
+      const k = toks[p++].s; const v = toks[p];
+      if (v === '{') { p++; out.push([k, block()]); p++; } else { p++; out.push([k, v.s]); }
+    }
+    return out;
+  }
+  return block();
+}
+const get = (pairs, k) => { const f = pairs.find(x => x[0] === k); return f ? f[1] : undefined; };
+const getAll = (pairs, k) => pairs.filter(x => x[0] === k).map(x => x[1]);
+
+// Toutes les scènes, dans l'ordre des fichiers
+const SCENES = {}; const ORDER = [];
+document.querySelectorAll('script.kv').forEach(el => {
+  const d = get(parseKV(el.textContent), 'dialogue');
+  const id = get(d, 'id');
+  SCENES[id] = { id, title: get(d, 'title'), start: get(d, 'start'), next: get(d, 'next'), nodes: Object.fromEntries(get(d, 'nodes')) };
+  ORDER.push(id);
+});
+
+// ---------- Compétences et règles ----------
+const ATTRS = [
+  { id: 'int', name: 'Intellect', skills: [['logique', 'Logique'], ['rhetorique', 'Rhétorique']] },
+  { id: 'psy', name: 'Psyché', skills: [['empathie', 'Empathie'], ['volonte', 'Volonté'], ['ferveur', 'Ferveur'], ['spectres', 'Spectres']] },
+  { id: 'phy', name: 'Physique', skills: [['endurance', 'Endurance'], ['poigne', 'Poigne']] },
+  { id: 'mot', name: 'Motricité', skills: [['perception', 'Perception'], ['sangfroid', 'Sang-froid']] },
+];
+const SKILL = {}; ATTRS.forEach(a => a.skills.forEach(([id, name]) => SKILL[id] = { name, attr: a.id }));
+const ARCHETYPES = [
+  { name: 'Le Zélé', desc: 'Patriote sans états d\'âme, la poigne facile. La voix de la Révolution parle fort dans sa tête.',
+    s: { ferveur: 4, poigne: 4, endurance: 3, volonte: 3, sangfroid: 2, perception: 2, logique: 1, rhetorique: 1, empathie: 1, spectres: 1 } },
+  { name: "L'Avocat", desc: 'Formé au barreau avant 89. Observe, déduit, ment avec aplomb. Le corps suit mal.',
+    s: { logique: 4, rhetorique: 4, perception: 3, sangfroid: 3, ferveur: 2, volonte: 2, empathie: 2, spectres: 1, endurance: 1, poigne: 1 } },
+  { name: 'Le Hanté', desc: 'Sent tout, voit les morts de la place. Fragile.',
+    s: { empathie: 4, spectres: 4, volonte: 3, perception: 2, rhetorique: 2, logique: 2, endurance: 2, sangfroid: 1, poigne: 1, ferveur: 1 } },
+];
+const MUSIC = {
+  'Musique.Reveil': 'violoncelle seul et nappe grave, presque immobile',
+  'Musique.Place': 'tambour lent, cordes frottées, « Ça ira » déformé au loin',
+  'Musique.Tension': 'percussions sèches et cordes en trémolo',
+  'Musique.Fin': 'accord suspendu, conclusion ouverte',
+};
+const SPEAKERS = {
+  marie: ['Marie-Anne Delorme', 'npc'], messager: ['Estafette du Comité', 'radio'], crieur: ['Crieur public', 'kessel'],
+  porteur: ["Le porteur d'eau", 'npc'], mercier: ['Brutus Mercier', 'npc'],
+};
+const XP_PER_POINT = 3;
+const diffName = d => d <= 6 ? 'Trivial' : d <= 8 ? 'Facile' : d <= 10 ? 'Moyen' : d <= 12 ? 'Difficile' : d <= 14 ? 'Redoutable' : 'Héroïque';
+function chance(level, diff) {
+  let ok = 0;
+  for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) {
+    if (a === 6 && b === 6) ok++; else if (a === 1 && b === 1) {} else if (a + b + level >= diff) ok++;
+  }
+  return Math.round(ok / 36 * 100);
+}
+
+// ---------- État ----------
+let S;
+const $ = id => document.getElementById(id);
+function newGame(arch) {
+  S = { arch, skills: { ...arch.s }, flags: new Set(), tried: new Set(), failedWhite: new Map(), over: false, xp: 0, points: 0, scene: null, node: null };
+  S.maxH = S.skills.endurance + 2; S.maxM = S.skills.volonte + 2; S.health = S.maxH; S.morale = S.maxM;
+  $('agentName').textContent = arch.name;
+  startScene(ORDER[0]);
+}
+function startScene(id) {
+  S.scene = SCENES[id];
+  $('log').innerHTML = '';
+  $('sceneTitle').textContent = `Scène ${ORDER.indexOf(id) + 1} · ${S.scene.title}`;
+  renderDossier(); enter(S.scene.start);
+}
+const passes = pairs => getAll(pairs, 'require').every(f => S.flags.has(f)) && !getAll(pairs, 'unless').some(f => S.flags.has(f));
+
+function add(html, cls) {
+  const d = document.createElement('div'); d.className = 'entry ' + (cls || ''); d.innerHTML = html; $('log').appendChild(d);
+  d.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+function say(line) {
+  const who = get(line, 'speaker'), text = esc(get(line, 'text'));
+  const passive = get(line, 'passive');
+  if (passive && S.skills[passive] + 6 < +get(line, 'difficulty')) return;
+  if (who === 'narrateur') return add(`<span class="narr">${text}</span>`);
+  const sk = SKILL[who];
+  if (sk) {
+    const tag = passive ? `<span class="tag">[${diffName(+get(line, 'difficulty'))} : réussite]</span>` : '';
+    return add(`<span class="who">${sk.name}</span>${tag}${text}`, sk.attr);
+  }
+  const [name, cls] = SPEAKERS[who] || [who, 'npc'];
+  add(`<span class="who">${esc(name)}</span><span class="txt">${text}</span>`, cls);
+}
+
+function gainXP(n, why) {
+  S.xp += n;
+  while (S.xp >= XP_PER_POINT) { S.xp -= XP_PER_POINT; S.points++; add(`<span class="gauge" style="color:var(--you)">+1 point de compétence. Dépense-le dans le dossier.</span>`); }
+  renderDossier();
+}
+
+function gauge(kind, delta) {
+  S[kind] = Math.max(0, Math.min(kind === 'health' ? S.maxH : S.maxM, S[kind] + delta));
+  add(`<span class="gauge">${kind === 'health' ? 'Santé' : 'Moral'} ${delta > 0 ? '+' : ''}${delta}</span>`);
+  renderDossier();
+  if (S[kind] <= 0) {
+    S.over = true;
+    add(kind === 'health' ? `<span class="narr">Ton corps lâche. Le pavé revient contre ta joue, et cette fois il y reste.</span>`
+                          : `<span class="narr">Quelque chose en toi s'éteint. Tu noues l'écharpe sans réfléchir, et tu n'entends plus rien.</span>`);
+    endPanel('Fin de partie', null);
+  }
+}
+
+function enter(id) {
+  const node = S.scene.nodes[id];
+  if (!node) { add(`<span class="note">Noeud introuvable : ${esc(id)}</span>`); return; }
+  S.node = id;
+  for (const [k, v] of node) {
+    if (S.over) return;
+    if (k === 'music') { $('music').innerHTML = `♪ <strong>${esc(v)}</strong><br>${esc(MUSIC[v] || '')}<br>Bande-son originale à composer.`; }
+    else if (k === 'set') S.flags.add(v);
+    else if (k === 'health' || k === 'morale') gauge(k, +v);
+    else if (k === 'line' && passes(v)) say(v);
+  }
+  if (S.over) return;
+  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', S.scene.next); }
+  renderChoices();
+}
+
+function renderChoices() {
+  const ul = $('choices'); ul.innerHTML = '';
+  if (!S || S.over || !S.node) return;
+  const node = S.scene.nodes[S.node]; if (get(node, 'end')) return;
+  let n = 0;
+  getAll(node, 'choice').forEach((c, idx) => {
+    if (!passes(c)) return;
+    const key = S.scene.id + ':' + S.node + ':' + idx, check = get(c, 'check'), type = get(c, 'type');
+    if (check && type === 'rouge' && S.tried.has(key)) return;
+    const li = document.createElement('li'); const b = document.createElement('button');
+    b.className = 'choice'; b.type = 'button'; n++;
+    let label = '';
+    if (check) {
+      const d = +get(c, 'difficulty');
+      const failedAt = S.failedWhite.get(key);
+      if (failedAt !== undefined && S.skills[check] <= failedAt) {
+        b.disabled = true; label = `<span class="chk">[${SKILL[check].name} · raté. Monte la compétence pour retenter]</span>`;
+      } else {
+        label = `<span class="chk ${type}">[${SKILL[check].name} · ${diffName(d)} ${d} · ${chance(S.skills[check], d)} %]</span>`;
+      }
+    }
+    b.innerHTML = `<span class="n">${n}.</span><span>${label}${esc(get(c, 'text'))}</span>`;
+    b.dataset.n = n;
+    b.onclick = () => choose(c, key);
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+function choose(c, key) {
+  $('choices').innerHTML = '';
+  add(`<span class="who">Toi</span>${esc(get(c, 'text'))}`, 'you');
+  const check = get(c, 'check');
+  if (!check) return enter(get(c, 'goto'));
+  const d = +get(c, 'difficulty'), lvl = S.skills[check], type = get(c, 'type');
+  const a = 1 + Math.floor(Math.random() * 6), b = 1 + Math.floor(Math.random() * 6);
+  const ok = (a === 6 && b === 6) || (!(a === 1 && b === 1) && a + b + lvl >= d);
+  const why = a === 6 && b === 6 ? ' (double six)' : a === 1 && b === 1 ? ' (double un)' : '';
+  S.tried.add(key);
+  if (type === 'blanc') { if (ok) S.failedWhite.delete(key); else S.failedWhite.set(key, lvl); }
+  add(`Test ${type} de ${SKILL[check].name} : <span class="dice"><span class="die">${a}</span><span class="die">${b}</span></span> + ${lvl} = ${a + b + lvl} contre ${d}${why} → <b>${ok ? 'Réussite' : 'Échec'}</b>`, 'roll ' + (ok ? 'ok' : 'ko'));
+  if (ok) gainXP(1);
+  enter(get(c, ok ? 'success' : 'failure'));
+}
+
+function endPanel(title, next) {
+  $('choices').innerHTML = '';
+  const nextBtn = next && SCENES[next] ? `<button class="ghost" type="button" id="nextScene">Scène suivante : ${esc(SCENES[next].title)}</button>` : '';
+  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du prototype. La suite n'est pas encore écrite.</span>` : '');
+  add(`<div class="end"><b>${title}</b>${more}<span>Ce que le jeu retient : ${[...S.flags].filter(f => !f.startsWith('vu_')).map(esc).join(', ') || 'rien'}.</span><div class="toolbar">${nextBtn}<button class="ghost" type="button" id="replay">Rejouer avec un autre agent</button></div></div>`);
+  if (nextBtn) $('nextScene').onclick = () => startScene(next);
+  $('replay').onclick = showStart;
+}
+
+function spend(id) {
+  if (!S || S.points <= 0) return;
+  S.points--; S.skills[id]++;
+  if (id === 'endurance') { S.maxH++; S.health++; }
+  if (id === 'volonte') { S.maxM++; S.morale++; }
+  renderDossier(); renderChoices();
+}
+
+function renderDossier() {
+  const pips = (el, val, max, cls) => { el.innerHTML = Array.from({ length: max }, (_, i) => `<span class="pip ${cls} ${i < val ? 'on' : ''}"></span>`).join(''); };
+  pips($('health'), S ? S.health : 0, S ? S.maxH : 0, 'h'); pips($('morale'), S ? S.morale : 0, S ? S.maxM : 0, 'm');
+  const canSpend = S && S.points > 0 && !S.over;
+  $('skills').innerHTML = ATTRS.map(a => `<div class="attr ${a.id}"><h3 style="color:var(--${a.id})">${a.name}</h3><ul>${a.skills.map(([id, name]) =>
+    `<li><span>${name}</span><span class="lv">${S ? S.skills[id] : '–'}${canSpend ? `<button class="plus" type="button" data-skill="${id}" aria-label="Monter ${name}">+</button>` : ''}</span></li>`).join('')}</ul></div>`).join('');
+  $('skills').querySelectorAll('.plus').forEach(b => b.onclick = () => spend(b.dataset.skill));
+  $('xp').innerHTML = S ? `<span>Expérience ${S.xp} / ${XP_PER_POINT}${S.points ? ` · <span class="pts">${S.points} point${S.points > 1 ? 's' : ''} à dépenser</span>` : ''}</span><div class="xpbar"><i style="width:${S.xp / XP_PER_POINT * 100}%"></i></div>` : '';
+}
+
+function showStart() {
+  S = null; renderDossier(); $('agentName').textContent = 'Commissaire sans écharpe';
+  $('music').textContent = '♪ Aucune musique';
+  $('choices').innerHTML = '';
+  $('sceneTitle').textContent = `Prototype · ${ORDER.length} scènes`;
+  $('log').innerHTML = `<div class="start entry">
+    <p class="narr">Paris, 8 thermidor an II. La Terreur est à son comble, les charrettes roulent chaque jour vers l'échafaud. Dans la salle d'un comité de surveillance, un commissaire ouvre les yeux sur un plancher sale. Il ne sait plus qui il est.</p>
+    <p>Choisis le commissaire que tu seras. Ses compétences décident de ce qu'il remarque, de ce que ses voix intérieures lui soufflent et de ses chances aux dés (2d6 + niveau). Chaque test réussi rapporte de l'expérience ; tous les ${XP_PER_POINT} points, tu montes une compétence, ce qui rouvre les tests blancs ratés.</p>
+    <div class="archs">${ARCHETYPES.map((a, i) => `<button class="arch" type="button" data-i="${i}"><b>${a.name}</b><span>${a.desc}</span></button>`).join('')}</div>
+    <p class="note">Prototype. Le texte vient des mêmes fichiers de dialogue que le jeu lira. Pas de son pour l'instant : la bande-son originale reste à composer.</p>
+  </div>`;
+  $('log').querySelectorAll('.arch').forEach(b => b.onclick = () => newGame(ARCHETYPES[+b.dataset.i]));
+}
+
+document.addEventListener('keydown', e => {
+  if (!/^[1-9]$/.test(e.key) || e.target.tagName === 'INPUT') return;
+  const b = $('choices').querySelector(`button[data-n="${e.key}"]`); if (b && !b.disabled) b.click();
+});
+$('restart').onclick = showStart;
+showStart();
+</script>

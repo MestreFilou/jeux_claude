@@ -1,0 +1,304 @@
+// Scène 01 : le réveil au comité de surveillance
+// Paris, section des Piques, 8 thermidor an II (26 juillet 1794), le matin
+// où Robespierre prononce son dernier discours à la Convention.
+//
+// Format texte à accolades. Le même fichier est lu par le prototype
+// navigateur et sera importé dans Unreal Engine (converti en JSON).
+//
+// Clés d'un noeud :
+//   "music"   identifiant d'une piste de la bande-son originale
+//   "line"    réplique : speaker, text, et optionnellement passive + difficulty
+//             (test passif : niveau + 6 >= difficulté), require / unless (drapeaux)
+//   "choice"  choix : text, goto, ou check + difficulty + type (blanc / rouge)
+//             + success + failure ; require / unless pour l'afficher ou non
+//   "set"     drapeau mis à 1 en entrant dans le noeud
+//   "health" / "morale"  modifie les jauges en entrant dans le noeud
+//   "end"     fin de scène
+
+"dialogue"
+{
+	"id"	"scene01"
+	"title"	"Comité de surveillance de la section des Piques, 8 thermidor an II, 6 h"
+	"next"	"scene02"
+	"start"	"reveil"
+
+	"nodes"
+	{
+		"reveil"
+		{
+			"music"	"Musique.Reveil"
+			"line"	{ "speaker" "narrateur" "text" "Le plancher sent la cire froide et le vin renversé. Au-dessus de toi, une chandelle achève de se noyer dans sa propre cire." }
+			"line"	{ "speaker" "endurance" "passive" "endurance" "difficulty" "6" "text" "Ta bouche a le goût du fer. Tu as dormi tout habillé, la cocarde de travers. Encore." }
+			"line"	{ "speaker" "ferveur" "passive" "ferveur" "difficulty" "8" "text" "DEBOUT, CITOYEN. LA PATRIE NE DORT PAS. LA VIGILANCE EST UNE VERTU." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "10" "text" "Tu rêvais d'une charrette. Elle roulait vers l'échafaud, et tous ceux qui étaient à bord portaient ton visage." }
+			"choice"	{ "text" "Te relever." "goto" "bureau" }
+			"choice"	{ "text" "Te souvenir de ton nom." "check" "volonte" "difficulty" "8" "type" "rouge" "success" "nom_ok" "failure" "nom_rate" }
+			"choice"	{ "text" "Rester au sol. Juste une minute." "goto" "sol" }
+		}
+
+		"sol"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Une minute passe. Dehors, rue Saint-Honoré, les premières charrettes de légumes cahotent sur les pavés." }
+			"line"	{ "speaker" "volonte" "text" "Si tu restes là, personne ne viendra te relever. Personne ne vient jamais." }
+			"morale"	"-1"
+			"choice"	{ "text" "Bon. D'accord. Te relever." "goto" "bureau" }
+		}
+
+		"nom_ok"
+		{
+			"set"	"nom"
+			"line"	{ "speaker" "volonte" "text" "Tu avais un nom avant d'avoir une fonction. Il commence par un D. Il sent l'encre et la pluie. Garde-le : c'est tout ce qui t'appartient." }
+			"choice"	{ "text" "Te relever, avec ce D dans la poche." "goto" "bureau" }
+		}
+
+		"nom_rate"
+		{
+			"line"	{ "speaker" "volonte" "text" "Rien. Un trou blanc, propre, comme si quelqu'un l'avait gratté au canif." }
+			"line"	{ "speaker" "ferveur" "text" "UN NOM EST UNE VANITÉ D'ANCIEN RÉGIME. TU ES UN CITOYEN. CELA SUFFIT." }
+			"morale"	"-1"
+			"choice"	{ "text" "Te relever." "goto" "bureau" }
+		}
+
+		"bureau"
+		{
+			"line"	{ "speaker" "narrateur" "unless" "vu_bureau" "text" "La salle du comité de surveillance. Une table chargée de registres, un encrier renversé, l'affiche de la loi des suspects clouée au mur. Sur une chaise, les poignets liés par une corde, une femme te regarde. Ton écharpe tricolore n'est plus autour de ta taille." }
+			"line"	{ "speaker" "narrateur" "require" "vu_bureau" "text" "La salle. Les registres. La femme sur sa chaise, qui ne te quitte pas des yeux." }
+			"line"	{ "speaker" "perception" "passive" "perception" "difficulty" "10" "unless" "vu_bureau" "text" "Du sang séché sur le pommeau du sabre posé sur la table. Pas beaucoup. Assez." }
+			"set"	"vu_bureau"
+			"choice"	{ "text" "Parler à la femme ligotée." "goto" "marie" }
+			"choice"	{ "text" "Chercher ton écharpe et tes papiers." "check" "perception" "difficulty" "10" "type" "blanc" "success" "carte_ok" "failure" "carte_rate" "unless" "carte" }
+			"choice"	{ "text" "Fouiller sous la table, là où elle a parlé d'une bouteille." "goto" "carte_ok" "require" "indice_bureau" "unless" "carte" }
+			"choice"	{ "text" "Examiner le sabre." "check" "logique" "difficulty" "12" "type" "blanc" "success" "sabre_ok" "failure" "sabre_rate" "unless" "sabre_vu" }
+			"choice"	{ "text" "Répondre aux coups frappés à la porte." "goto" "messager" "require" "vu_marie" "unless" "messager_fait" }
+			"choice"	{ "text" "Décider de ce que tu fais d'elle." "goto" "decision" "require" "parle_marie" }
+		}
+
+		"carte_ok"
+		{
+			"set"	"carte"
+			"set"	"identite"
+			"line"	{ "speaker" "narrateur" "text" "Sous la table, à côté d'une bouteille de calvados vide : ton écharpe tricolore, roulée en boule, et ta carte de civisme. « Désiré Lacombe, commissaire du comité de surveillance, section des Piques. » L'encre a bavé sur le cachet." }
+			"line"	{ "speaker" "ferveur" "text" "DÉSIRÉ LACOMBE. COMMISSAIRE. VOILÀ CE QUE TU ES. RIEN DE PLUS. RIEN DE MOINS." }
+			"choice"	{ "text" "Garder l'écharpe à la main." "goto" "bureau" }
+		}
+
+		"carte_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Tu fouilles les registres, la corbeille, le dessous de la chaise. La pièce tangue." }
+			"line"	{ "speaker" "endurance" "text" "Penche-toi encore une fois et tu vomis sur tes souliers." }
+			"health"	"-1"
+			"choice"	{ "text" "Laisser tomber pour l'instant." "goto" "bureau" }
+		}
+
+		"sabre_ok"
+		{
+			"set"	"sabre_vu"
+			"set"	"autre_personne"
+			"line"	{ "speaker" "logique" "text" "Elle n'a aucune blessure. Le sang est sur le pommeau, pas sur la lame : quelqu'un a été frappé pour être arrêté, pas pour être tué. Quelqu'un qui est passé ici cette nuit et qui n'y est plus." }
+			"choice"	{ "text" "Retenir ça." "goto" "bureau" }
+		}
+
+		"sabre_rate"
+		{
+			"set"	"sabre_vu"
+			"line"	{ "speaker" "logique" "text" "Du sang. Un sabre. Une femme ligotée. La conclusion s'impose d'elle-même, et elle te dégoûte." }
+			"morale"	"-1"
+			"choice"	{ "text" "Reposer le sabre." "goto" "bureau" }
+		}
+
+		"marie"
+		{
+			"set"	"parle_marie"
+			"line"	{ "speaker" "marie" "unless" "vu_marie" "text" "Vous êtes réveillé. Bien. Vous allez me détacher, maintenant ?" }
+			"line"	{ "speaker" "marie" "require" "vu_marie" "text" "Quoi encore ?" }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "10" "unless" "vu_marie" "text" "Elle a peur de toi. Mais elle a plus peur encore de la porte derrière toi. Elle attend quelqu'un, et ce n'est pas un ami." }
+			"set"	"vu_marie"
+			"choice"	{ "text" "« Qui êtes-vous ? »" "goto" "marie_qui" "unless" "marie_qui" }
+			"choice"	{ "text" "« Qu'est-ce que je vous ai fait ? »" "goto" "marie_quoi" "unless" "marie_quoi" }
+			"choice"	{ "text" "Mentir : « Je me souviens de tout. Avouez. »" "check" "rhetorique" "difficulty" "10" "type" "rouge" "success" "marie_mensonge_ok" "failure" "marie_mensonge_rate" }
+			"choice"	{ "text" "Abattre ton poing sur la table pour l'impressionner." "check" "poigne" "difficulty" "8" "type" "rouge" "success" "marie_coup_ok" "failure" "marie_coup_rate" }
+			"choice"	{ "text" "« Ce sang sur le sabre. À qui est-il ? »" "goto" "marie_sang" "require" "autre_personne" "unless" "marie_sang" }
+			"choice"	{ "text" "Revenir au milieu de la pièce." "goto" "bureau" }
+		}
+
+		"marie_qui"
+		{
+			"set"	"marie_qui"
+			"set"	"indice_bureau"
+			"line"	{ "speaker" "marie" "text" "Marie-Anne Delorme, lingère, rue de la Sourdière. Vous m'avez arrêtée hier soir comme suspecte. Ensuite vous avez bu le calvados que vous aviez saisi chez moi. La bouteille doit encore être sous la table." }
+			"line"	{ "speaker" "rhetorique" "passive" "rhetorique" "difficulty" "10" "text" "Elle récite. Une phrase préparée. Le calvados est vrai, mais ce n'est pas toute l'histoire." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_quoi"
+		{
+			"set"	"marie_quoi"
+			"line"	{ "speaker" "marie" "text" "Rien. C'est ça le pire. Vous avez parlé toute la nuit. De votre femme. D'avant. Vous avez pleuré, alors vous avez arraché votre écharpe." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "9" "text" "Avant. Il y avait un avant. Un jardin à Meaux, une odeur de pain, et puis ce matin de janvier où la tête du roi est tombée, et où tu as crié avec la foule." }
+			"line"	{ "speaker" "poigne" "passive" "poigne" "difficulty" "10" "text" "Pleurer. Devant une suspecte. Tu es la honte du comité." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_sang"
+		{
+			"set"	"marie_sang"
+			"line"	{ "speaker" "marie" "text" "Un autre commissaire est venu vers trois heures. Il voulait m'emmener à la Conciergerie avant le jour. Vous avez refusé. Il a insisté." }
+			"line"	{ "speaker" "marie" "text" "Vous l'avez frappé avec le pommeau. Il est parti en jurant qu'il reviendrait avec la garde." }
+			"line"	{ "speaker" "logique" "text" "Voilà pourquoi elle regarde la porte. Et voilà pourquoi tu as mal à la main droite." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_mensonge_ok"
+		{
+			"set"	"secret_presse"
+			"line"	{ "speaker" "narrateur" "text" "Elle pâlit." }
+			"line"	{ "speaker" "marie" "text" "Alors vous savez, pour la presse. Je ne fais qu'imprimer. Des feuilles qui demandent la clémence, comme celles de Desmoulins. Ce n'est pas un crime d'avoir pitié." }
+			"line"	{ "speaker" "logique" "text" "Des libelles pour l'indulgence. Desmoulins a été guillotiné pour moins que ça, en germinal." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_mensonge_rate"
+		{
+			"line"	{ "speaker" "marie" "text" "Vous ne vous souvenez même pas de votre propre nom. Vous me l'avez demandé trois fois cette nuit." }
+			"line"	{ "speaker" "volonte" "text" "Elle a raison, et elle le sait. Ça fait mal." }
+			"morale"	"-1"
+			"choice"	{ "text" "Encaisser." "goto" "marie" }
+		}
+
+		"marie_coup_ok"
+		{
+			"set"	"brutal"
+			"line"	{ "speaker" "narrateur" "text" "Ton poing s'abat sur la table. L'encrier saute. Elle sursaute, et ses yeux se ferment un instant." }
+			"line"	{ "speaker" "ferveur" "text" "BIEN. LA TERREUR N'EST AUTRE CHOSE QUE LA JUSTICE PROMPTE, SÉVÈRE, INFLEXIBLE." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Tu viens de perdre quelque chose avec elle. Ça ne reviendra pas." }
+			"choice"	{ "text" "Continuer." "goto" "marie" }
+		}
+
+		"marie_coup_rate"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Ton poing rate le plat de la table et ton poignet heurte l'angle. Un craquement sec. Marie-Anne ne bouge même pas." }
+			"line"	{ "speaker" "endurance" "text" "Ça, tu vas le sentir toute la journée." }
+			"health"	"-1"
+			"choice"	{ "text" "Serrer les dents." "goto" "marie" }
+		}
+
+		"messager"
+		{
+			"music"	"Musique.Tension"
+			"set"	"messager_fait"
+			"line"	{ "speaker" "narrateur" "text" "Trois coups secs contre la porte. Une voix à travers le bois :" }
+			"line"	{ "speaker" "messager" "text" "Citoyen commissaire ! Le Comité de sûreté générale réclame ton rapport sur la suspecte Delorme. Réponds !" }
+			"line"	{ "speaker" "ferveur" "passive" "ferveur" "difficulty" "6" "text" "RÉPONDS. LE SILENCE EST UN AVEU." }
+			"choice"	{ "text" "« Ici le commissaire Lacombe. Tout est en ordre. »" "goto" "messager_ok" "require" "identite" }
+			"choice"	{ "text" "« Ici le commissaire... euh... »" "goto" "messager_bafouille" "unless" "identite" }
+			"choice"	{ "text" "Prendre une voix d'ivrogne : « Le commissaire est sorti. Repasse plus tard. »" "check" "sangfroid" "difficulty" "12" "type" "rouge" "success" "messager_imite_ok" "failure" "messager_imite_rate" }
+			"choice"	{ "text" "Ne pas répondre." "goto" "messager_silence" }
+		}
+
+		"messager_ok"
+		{
+			"set"	"transfert"
+			"line"	{ "speaker" "messager" "text" "Bien, citoyen. Une charrette viendra la prendre pour la Conciergerie dans une heure." }
+			"line"	{ "speaker" "empathie" "passive" "empathie" "difficulty" "8" "text" "Derrière toi, Marie-Anne vient d'arrêter de respirer." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_bafouille"
+		{
+			"set"	"verification"
+			"line"	{ "speaker" "messager" "text" "Tu ne sais plus ton nom, commissaire ? Le Comité saura s'en souvenir pour toi. J'envoie la garde." }
+			"morale"	"-1"
+			"choice"	{ "text" "Écouter ses pas s'éloigner, la main moite." "goto" "bureau" }
+		}
+
+		"messager_imite_ok"
+		{
+			"set"	"temps_gagne"
+			"line"	{ "speaker" "messager" "text" "Encore saoul, celui-là... Je repasserai à midi." }
+			"line"	{ "speaker" "sangfroid" "text" "Midi. Assez pour disparaître. Ou pour tout réparer." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_imite_rate"
+		{
+			"set"	"verification"
+			"line"	{ "speaker" "narrateur" "text" "Ta voix déraille au milieu du mot « sorti »." }
+			"line"	{ "speaker" "messager" "text" "Lacombe ? C'est toi ? Bon. Le Comité sera informé que son commissaire joue la comédie." }
+			"choice"	{ "text" "Revenir vers la table." "goto" "bureau" }
+		}
+
+		"messager_silence"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Les pas s'éloignent dans l'escalier. Le silence qui suit est épais, presque solide." }
+			"line"	{ "speaker" "spectres" "passive" "spectres" "difficulty" "8" "text" "Dans ce silence, une voix qui ne vient de nulle part : « Il n'est pas trop tard pour toi. Pas encore. »" }
+			"choice"	{ "text" "Faire comme si tu n'avais rien entendu." "goto" "bureau" }
+		}
+
+		"decision"
+		{
+			"line"	{ "speaker" "narrateur" "text" "Le couteau qui coupera sa corde est à ta ceinture. Tu le sais sans chercher." }
+			"line"	{ "speaker" "logique" "require" "transfert" "text" "La charrette arrive dans une heure. Ce que tu décides, décide-le vite." }
+			"line"	{ "speaker" "logique" "require" "verification" "text" "La garde arrive. Pour elle, et pour toi." }
+			"choice"	{ "text" "La détacher." "goto" "fin_liberte" }
+			"choice"	{ "text" "La garder pour la charrette." "goto" "fin_transfert" }
+			"choice"	{ "text" "« Montrez-moi votre presse. Je veux lire, moi aussi. »" "goto" "fin_resistance" "require" "secret_presse" }
+			"choice"	{ "text" "Nouer ton écharpe et redevenir le commissaire Lacombe." "check" "volonte" "difficulty" "14" "type" "rouge" "success" "fin_echarpe_ok" "failure" "fin_echarpe_rate" "require" "carte" }
+			"choice"	{ "text" "Pas encore." "goto" "bureau" }
+		}
+
+		"fin_liberte"
+		{
+			"set"	"marie_libre"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "La corde tombe. Marie-Anne frotte ses poignets sans te quitter des yeux." }
+			"line"	{ "speaker" "marie" "text" "Vous avez dit cette nuit que vous vouliez redevenir quelqu'un de bien. Je ne pensais pas que vous vous en souviendriez." }
+			"line"	{ "speaker" "marie" "require" "brutal" "text" "Mais ne me touchez plus jamais." }
+			"line"	{ "speaker" "narrateur" "text" "Elle sort. Rue Saint-Honoré, le jour se lève sur une ville qui compte ses suspects." }
+			"end"	"1"
+		}
+
+		"fin_transfert"
+		{
+			"set"	"marie_livree"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "marie" "text" "D'accord. Vous savez ce qu'on fait des gens, à la Conciergerie ? Non. Vous avez oublié ça aussi." }
+			"line"	{ "speaker" "ferveur" "text" "LA LOI EST RESPECTÉE. TU AS BIEN AGI, COMMISSAIRE." }
+			"line"	{ "speaker" "volonte" "text" "Alors pourquoi tes mains tremblent-elles ?" }
+			"morale"	"-1"
+			"end"	"1"
+		}
+
+		"fin_resistance"
+		{
+			"set"	"marie_libre"
+			"set"	"contact_resistance"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "marie" "text" "Rue de la Sourdière, la cave sous la lingerie. Frappez trois fois, puis deux. Et venez sans votre écharpe." }
+			"line"	{ "speaker" "spectres" "text" "Une colombe dessinée au charbon sur une porte. Tu l'as déjà vue. Dans un rêve, ou dans une autre vie." }
+			"line"	{ "speaker" "ferveur" "text" "TRAHISON. TRAHISON. TRAHISON." }
+			"end"	"1"
+		}
+
+		"fin_echarpe_ok"
+		{
+			"set"	"echarpe_portee"
+			"set"	"marie_attachee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu noues l'écharpe. Le tissu serre ta taille comme une main. Le monde redevient simple : il y a les patriotes, et il y a les suspects." }
+			"line"	{ "speaker" "ferveur" "text" "SALUT ET FRATERNITÉ, CITOYEN LACOMBE." }
+			"line"	{ "speaker" "volonte" "text" "Toutes les voix se taisent. Tout devient simple. C'est exactement ça qui devrait te faire peur." }
+			"end"	"1"
+		}
+
+		"fin_echarpe_rate"
+		{
+			"set"	"marie_attachee"
+			"music"	"Musique.Fin"
+			"line"	{ "speaker" "narrateur" "text" "Tu ramasses l'écharpe. Tes mains refusent de la nouer." }
+			"line"	{ "speaker" "spectres" "text" "Dans la lumière grise, les trois couleurs ressemblent à trois bandes de linge sale. Aucune ne te ressemble." }
+			"line"	{ "speaker" "narrateur" "text" "Tu la reposes sur la table. Marie-Anne te regarde comme si elle te voyait pour la première fois." }
+			"morale"	"-1"
+			"end"	"1"
+		}
+	}
+}

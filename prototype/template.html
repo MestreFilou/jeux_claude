@@ -1,0 +1,370 @@
+<title>Huit Thermidor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=IM+Fell+English+SC&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : à gauche le dossier du commissaire (compétences, jauges, musique), à droite la colonne de dialogue qui défile, comme Disco Elysium. Un seul thème sombre, assumé : Paris à la chandelle, été 1794. */
+:root {
+  color-scheme: dark;
+  --bg: #100d0c;
+  --panel: #1a1513;
+  --line: #352a22;
+  --fg: #e2d8c6;
+  --muted: #948878;
+  --accent: #8fa6cf;      /* bleu de la cocarde, terni */
+  --you: #e8c27a;
+  --int: #6aa8e0;         /* Intellect */
+  --psy: #a58be0;         /* Psyché */
+  --phy: #e0736a;         /* Physique */
+  --mot: #e0c45a;         /* Motricité */
+  --ok: #7fc48b;
+  --ko: #e0736a;
+  --f-body: "Spectral", Georgia, "Times New Roman", serif;
+  --f-label: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 17px; line-height: 1.55;
+  background-image: radial-gradient(ellipse at 20% 0%, rgba(232,170,90,.09), transparent 55%); background-attachment: fixed;
+}
+.app {
+  display: grid; grid-template-columns: minmax(240px, 300px) minmax(0, 1fr); gap: 28px;
+  max-width: 1100px; margin: 0 auto; min-height: 100%;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px;
+}
+@media (max-width: 760px) { .app { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+
+/* Dossier */
+.dossier { display: flex; flex-direction: column; gap: 18px; align-self: start; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+@media (max-width: 760px) { .dossier { position: static; } }
+.brand { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; color: var(--muted); }
+.brand b { display: block; font-size: 30px; letter-spacing: .06em; color: var(--fg); line-height: 1.1; }
+.meters { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; font-family: var(--f-label); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+.pips { display: flex; gap: 4px; }
+.pip { width: 14px; height: 14px; border: 1px solid var(--line); background: transparent; }
+.pip.on.h { background: var(--phy); border-color: var(--phy); }
+.pip.on.m { background: var(--psy); border-color: var(--psy); }
+.skills { display: grid; gap: 14px; }
+.attr h3 { margin: 0 0 4px; font-family: var(--f-label); font-weight: 700; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; }
+.attr ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.attr li { display: flex; justify-content: space-between; font-family: var(--f-label); font-size: 15px; letter-spacing: .04em; }
+.attr li span:last-child { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); }
+.music { border-top: 1px solid var(--line); padding-top: 12px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); line-height: 1.5; }
+.music strong { color: var(--accent); font-weight: 500; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; cursor: pointer; }
+.ghost { background: none; border: 1px solid var(--line); color: var(--muted); font-family: var(--f-label); text-transform: uppercase; letter-spacing: .1em; font-size: 12px; padding: 6px 10px; }
+.ghost:hover, .ghost:focus-visible { color: var(--fg); border-color: var(--muted); }
+
+/* Colonne de dialogue */
+.column { min-width: 0; display: flex; flex-direction: column; gap: 14px; max-width: 640px; }
+.scene-title { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); font-size: 13px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.log { display: flex; flex-direction: column; gap: 12px; }
+.entry { animation: in .35s ease-out both; }
+@keyframes in { from { opacity: .2; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .entry { animation: none; } }
+.who { font-family: var(--f-label); font-weight: 400; text-transform: uppercase; letter-spacing: .06em; font-size: 16px; margin-right: 6px; }
+.tag { font-family: var(--f-mono); font-size: 12px; color: var(--muted); margin-right: 6px; }
+.narr { color: var(--fg); font-style: italic; opacity: .92; }
+.you .who { color: var(--you); }
+.you { color: #bfb7a3; }
+.npc .who { color: var(--fg); }
+.radio .who { color: var(--accent); }
+.radio .txt { color: var(--accent); }
+.int .who { color: var(--int); } .psy .who { color: var(--psy); } .phy .who { color: var(--phy); } .mot .who { color: var(--mot); }
+.roll { font-family: var(--f-mono); font-size: 13px; border-left: 2px solid var(--line); padding: 4px 0 4px 10px; color: var(--muted); }
+.roll.ok b { color: var(--ok); } .roll.ko b { color: var(--ko); }
+.dice { display: inline-flex; gap: 4px; vertical-align: middle; margin: 0 4px; }
+.die { width: 20px; height: 20px; border: 1px solid var(--muted); display: inline-grid; place-items: center; font-size: 12px; color: var(--fg); }
+.gauge { font-family: var(--f-mono); font-size: 13px; color: var(--ko); }
+
+.choices { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; border-top: 1px solid var(--line); padding-top: 12px; }
+.choice { display: flex; gap: 10px; width: 100%; text-align: left; background: none; border: 0; color: #c9a75d; padding: 6px 4px; font-family: var(--f-body); font-size: 17px; line-height: 1.45; }
+.choice:hover, .choice:focus-visible { color: var(--you); background: rgba(232,194,122,.06); outline: none; }
+.choice .n { font-family: var(--f-mono); font-size: 14px; color: var(--muted); padding-top: 2px; min-width: 1.6em; }
+.choice .chk { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .06em; font-size: 14px; margin-right: 6px; }
+.choice .chk.blanc { color: var(--fg); } .choice .chk.rouge { color: var(--ko); }
+.choice[disabled] { color: #5d625f; cursor: not-allowed; background: none; }
+.choice[disabled] .chk { color: #5d625f; }
+
+.start { display: grid; gap: 12px; }
+.start p { margin: 0; max-width: 60ch; }
+.archs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.arch { text-align: left; background: var(--panel); border: 1px solid var(--line); color: var(--fg); padding: 12px; display: grid; gap: 4px; }
+.arch:hover, .arch:focus-visible { border-color: var(--accent); outline: none; }
+.arch b { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .08em; font-size: 17px; }
+.arch span { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.end { border: 1px solid var(--line); background: var(--panel); padding: 14px; display: grid; gap: 8px; }
+.end b { font-family: var(--f-label); text-transform: uppercase; letter-spacing: .12em; }
+.xp { font-family: var(--f-mono); font-size: 12px; color: var(--muted); display: grid; gap: 6px; }
+.xpbar { height: 4px; background: var(--line); }
+.xpbar i { display: block; height: 100%; background: var(--you); }
+.xp .pts { color: var(--you); }
+.plus { background: none; border: 1px solid var(--you); color: var(--you); font-family: var(--f-mono); font-size: 12px; line-height: 1; padding: 2px 6px; margin-left: 8px; }
+.plus:hover, .plus:focus-visible { background: var(--you); color: var(--bg); outline: none; }
+.attr li .lv { display: inline-flex; align-items: center; }
+.kessel .who { color: var(--accent); } .kessel .txt { color: var(--accent); }
+.note { font-size: 13px; color: var(--muted); font-family: var(--f-mono); }
+</style>
+
+<div class="app">
+  <aside class="dossier" aria-label="Dossier de l'agent">
+    <div class="brand">Comité de surveillance, section des Piques<b id="agentName">Agent sans masque</b></div>
+    <div class="meters">
+      <span>Santé</span><div class="pips" id="health"></div>
+      <span>Moral</span><div class="pips" id="morale"></div>
+    </div>
+    <div class="skills" id="skills"></div>
+    <div class="xp" id="xp"></div>
+    <div class="music" id="music">♪ Aucune musique</div>
+    <div class="toolbar"><button class="ghost" id="restart" type="button">Recommencer</button></div>
+  </aside>
+
+  <main class="column">
+    <div class="scene-title" id="sceneTitle"></div>
+    <div class="log" id="log" aria-live="polite"></div>
+    <ul class="choices" id="choices"></ul>
+  </main>
+</div>
+
+__KV__
+<script>
+// ---------- Lecteur KeyValues ----------
+function parseKV(src) {
+  const toks = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (c === '{' || c === '}') { toks.push(c); i++; continue; }
+    if (c === '"') {
+      let s = ''; i++;
+      while (i < src.length && src[i] !== '"') { if (src[i] === '\\' && i + 1 < src.length) { i++; s += src[i] === 'n' ? '\n' : src[i]; } else s += src[i]; i++; }
+      i++; toks.push({ s }); continue;
+    }
+    let s = ''; while (i < src.length && !/[\s{}"]/.test(src[i])) s += src[i++]; toks.push({ s });
+  }
+  let p = 0;
+  function block() {
+    const out = [];
+    while (p < toks.length && toks[p] !== '}') {
+      const k = toks[p++].s; const v = toks[p];
+      if (v === '{') { p++; out.push([k, block()]); p++; } else { p++; out.push([k, v.s]); }
+    }
+    return out;
+  }
+  return block();
+}
+const get = (pairs, k) => { const f = pairs.find(x => x[0] === k); return f ? f[1] : undefined; };
+const getAll = (pairs, k) => pairs.filter(x => x[0] === k).map(x => x[1]);
+
+// Toutes les scènes, dans l'ordre des fichiers
+const SCENES = {}; const ORDER = [];
+document.querySelectorAll('script.kv').forEach(el => {
+  const d = get(parseKV(el.textContent), 'dialogue');
+  const id = get(d, 'id');
+  SCENES[id] = { id, title: get(d, 'title'), start: get(d, 'start'), next: get(d, 'next'), nodes: Object.fromEntries(get(d, 'nodes')) };
+  ORDER.push(id);
+});
+
+// ---------- Compétences et règles ----------
+const ATTRS = [
+  { id: 'int', name: 'Intellect', skills: [['logique', 'Logique'], ['rhetorique', 'Rhétorique']] },
+  { id: 'psy', name: 'Psyché', skills: [['empathie', 'Empathie'], ['volonte', 'Volonté'], ['ferveur', 'Ferveur'], ['spectres', 'Spectres']] },
+  { id: 'phy', name: 'Physique', skills: [['endurance', 'Endurance'], ['poigne', 'Poigne']] },
+  { id: 'mot', name: 'Motricité', skills: [['perception', 'Perception'], ['sangfroid', 'Sang-froid']] },
+];
+const SKILL = {}; ATTRS.forEach(a => a.skills.forEach(([id, name]) => SKILL[id] = { name, attr: a.id }));
+const ARCHETYPES = [
+  { name: 'Le Zélé', desc: 'Patriote sans états d\'âme, la poigne facile. La voix de la Révolution parle fort dans sa tête.',
+    s: { ferveur: 4, poigne: 4, endurance: 3, volonte: 3, sangfroid: 2, perception: 2, logique: 1, rhetorique: 1, empathie: 1, spectres: 1 } },
+  { name: "L'Avocat", desc: 'Formé au barreau avant 89. Observe, déduit, ment avec aplomb. Le corps suit mal.',
+    s: { logique: 4, rhetorique: 4, perception: 3, sangfroid: 3, ferveur: 2, volonte: 2, empathie: 2, spectres: 1, endurance: 1, poigne: 1 } },
+  { name: 'Le Hanté', desc: 'Sent tout, voit les morts de la place. Fragile.',
+    s: { empathie: 4, spectres: 4, volonte: 3, perception: 2, rhetorique: 2, logique: 2, endurance: 2, sangfroid: 1, poigne: 1, ferveur: 1 } },
+];
+const MUSIC = {
+  'Musique.Reveil': 'violoncelle seul et nappe grave, presque immobile',
+  'Musique.Place': 'tambour lent, cordes frottées, « Ça ira » déformé au loin',
+  'Musique.Tension': 'percussions sèches et cordes en trémolo',
+  'Musique.Fin': 'accord suspendu, conclusion ouverte',
+};
+const SPEAKERS = {
+  marie: ['Marie-Anne Delorme', 'npc'], messager: ['Estafette du Comité', 'radio'], crieur: ['Crieur public', 'kessel'],
+  porteur: ["Le porteur d'eau", 'npc'], mercier: ['Brutus Mercier', 'npc'],
+};
+const XP_PER_POINT = 3;
+const diffName = d => d <= 6 ? 'Trivial' : d <= 8 ? 'Facile' : d <= 10 ? 'Moyen' : d <= 12 ? 'Difficile' : d <= 14 ? 'Redoutable' : 'Héroïque';
+function chance(level, diff) {
+  let ok = 0;
+  for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) {
+    if (a === 6 && b === 6) ok++; else if (a === 1 && b === 1) {} else if (a + b + level >= diff) ok++;
+  }
+  return Math.round(ok / 36 * 100);
+}
+
+// ---------- État ----------
+let S;
+const $ = id => document.getElementById(id);
+function newGame(arch) {
+  S = { arch, skills: { ...arch.s }, flags: new Set(), tried: new Set(), failedWhite: new Map(), over: false, xp: 0, points: 0, scene: null, node: null };
+  S.maxH = S.skills.endurance + 2; S.maxM = S.skills.volonte + 2; S.health = S.maxH; S.morale = S.maxM;
+  $('agentName').textContent = arch.name;
+  startScene(ORDER[0]);
+}
+function startScene(id) {
+  S.scene = SCENES[id];
+  $('log').innerHTML = '';
+  $('sceneTitle').textContent = `Scène ${ORDER.indexOf(id) + 1} · ${S.scene.title}`;
+  renderDossier(); enter(S.scene.start);
+}
+const passes = pairs => getAll(pairs, 'require').every(f => S.flags.has(f)) && !getAll(pairs, 'unless').some(f => S.flags.has(f));
+
+function add(html, cls) {
+  const d = document.createElement('div'); d.className = 'entry ' + (cls || ''); d.innerHTML = html; $('log').appendChild(d);
+  d.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+function say(line) {
+  const who = get(line, 'speaker'), text = esc(get(line, 'text'));
+  const passive = get(line, 'passive');
+  if (passive && S.skills[passive] + 6 < +get(line, 'difficulty')) return;
+  if (who === 'narrateur') return add(`<span class="narr">${text}</span>`);
+  const sk = SKILL[who];
+  if (sk) {
+    const tag = passive ? `<span class="tag">[${diffName(+get(line, 'difficulty'))} : réussite]</span>` : '';
+    return add(`<span class="who">${sk.name}</span>${tag}${text}`, sk.attr);
+  }
+  const [name, cls] = SPEAKERS[who] || [who, 'npc'];
+  add(`<span class="who">${esc(name)}</span><span class="txt">${text}</span>`, cls);
+}
+
+function gainXP(n, why) {
+  S.xp += n;
+  while (S.xp >= XP_PER_POINT) { S.xp -= XP_PER_POINT; S.points++; add(`<span class="gauge" style="color:var(--you)">+1 point de compétence. Dépense-le dans le dossier.</span>`); }
+  renderDossier();
+}
+
+function gauge(kind, delta) {
+  S[kind] = Math.max(0, Math.min(kind === 'health' ? S.maxH : S.maxM, S[kind] + delta));
+  add(`<span class="gauge">${kind === 'health' ? 'Santé' : 'Moral'} ${delta > 0 ? '+' : ''}${delta}</span>`);
+  renderDossier();
+  if (S[kind] <= 0) {
+    S.over = true;
+    add(kind === 'health' ? `<span class="narr">Ton corps lâche. Le pavé revient contre ta joue, et cette fois il y reste.</span>`
+                          : `<span class="narr">Quelque chose en toi s'éteint. Tu noues l'écharpe sans réfléchir, et tu n'entends plus rien.</span>`);
+    endPanel('Fin de partie', null);
+  }
+}
+
+function enter(id) {
+  const node = S.scene.nodes[id];
+  if (!node) { add(`<span class="note">Noeud introuvable : ${esc(id)}</span>`); return; }
+  S.node = id;
+  for (const [k, v] of node) {
+    if (S.over) return;
+    if (k === 'music') { $('music').innerHTML = `♪ <strong>${esc(v)}</strong><br>${esc(MUSIC[v] || '')}<br>Bande-son originale à composer.`; }
+    else if (k === 'set') S.flags.add(v);
+    else if (k === 'health' || k === 'morale') gauge(k, +v);
+    else if (k === 'line' && passes(v)) say(v);
+  }
+  if (S.over) return;
+  if (get(node, 'end')) { gainXP(2); return endPanel('Fin de la scène', S.scene.next); }
+  renderChoices();
+}
+
+function renderChoices() {
+  const ul = $('choices'); ul.innerHTML = '';
+  if (!S || S.over || !S.node) return;
+  const node = S.scene.nodes[S.node]; if (get(node, 'end')) return;
+  let n = 0;
+  getAll(node, 'choice').forEach((c, idx) => {
+    if (!passes(c)) return;
+    const key = S.scene.id + ':' + S.node + ':' + idx, check = get(c, 'check'), type = get(c, 'type');
+    if (check && type === 'rouge' && S.tried.has(key)) return;
+    const li = document.createElement('li'); const b = document.createElement('button');
+    b.className = 'choice'; b.type = 'button'; n++;
+    let label = '';
+    if (check) {
+      const d = +get(c, 'difficulty');
+      const failedAt = S.failedWhite.get(key);
+      if (failedAt !== undefined && S.skills[check] <= failedAt) {
+        b.disabled = true; label = `<span class="chk">[${SKILL[check].name} · raté. Monte la compétence pour retenter]</span>`;
+      } else {
+        label = `<span class="chk ${type}">[${SKILL[check].name} · ${diffName(d)} ${d} · ${chance(S.skills[check], d)} %]</span>`;
+      }
+    }
+    b.innerHTML = `<span class="n">${n}.</span><span>${label}${esc(get(c, 'text'))}</span>`;
+    b.dataset.n = n;
+    b.onclick = () => choose(c, key);
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+function choose(c, key) {
+  $('choices').innerHTML = '';
+  add(`<span class="who">Toi</span>${esc(get(c, 'text'))}`, 'you');
+  const check = get(c, 'check');
+  if (!check) return enter(get(c, 'goto'));
+  const d = +get(c, 'difficulty'), lvl = S.skills[check], type = get(c, 'type');
+  const a = 1 + Math.floor(Math.random() * 6), b = 1 + Math.floor(Math.random() * 6);
+  const ok = (a === 6 && b === 6) || (!(a === 1 && b === 1) && a + b + lvl >= d);
+  const why = a === 6 && b === 6 ? ' (double six)' : a === 1 && b === 1 ? ' (double un)' : '';
+  S.tried.add(key);
+  if (type === 'blanc') { if (ok) S.failedWhite.delete(key); else S.failedWhite.set(key, lvl); }
+  add(`Test ${type} de ${SKILL[check].name} : <span class="dice"><span class="die">${a}</span><span class="die">${b}</span></span> + ${lvl} = ${a + b + lvl} contre ${d}${why} → <b>${ok ? 'Réussite' : 'Échec'}</b>`, 'roll ' + (ok ? 'ok' : 'ko'));
+  if (ok) gainXP(1);
+  enter(get(c, ok ? 'success' : 'failure'));
+}
+
+function endPanel(title, next) {
+  $('choices').innerHTML = '';
+  const nextBtn = next && SCENES[next] ? `<button class="ghost" type="button" id="nextScene">Scène suivante : ${esc(SCENES[next].title)}</button>` : '';
+  const more = next && !SCENES[next] ? `<span>La suite n'est pas encore écrite.</span>` : (!next && title !== 'Fin de partie' ? `<span>Fin du prototype. La suite n'est pas encore écrite.</span>` : '');
+  add(`<div class="end"><b>${title}</b>${more}<span>Ce que le jeu retient : ${[...S.flags].filter(f => !f.startsWith('vu_')).map(esc).join(', ') || 'rien'}.</span><div class="toolbar">${nextBtn}<button class="ghost" type="button" id="replay">Rejouer avec un autre agent</button></div></div>`);
+  if (nextBtn) $('nextScene').onclick = () => startScene(next);
+  $('replay').onclick = showStart;
+}
+
+function spend(id) {
+  if (!S || S.points <= 0) return;
+  S.points--; S.skills[id]++;
+  if (id === 'endurance') { S.maxH++; S.health++; }
+  if (id === 'volonte') { S.maxM++; S.morale++; }
+  renderDossier(); renderChoices();
+}
+
+function renderDossier() {
+  const pips = (el, val, max, cls) => { el.innerHTML = Array.from({ length: max }, (_, i) => `<span class="pip ${cls} ${i < val ? 'on' : ''}"></span>`).join(''); };
+  pips($('health'), S ? S.health : 0, S ? S.maxH : 0, 'h'); pips($('morale'), S ? S.morale : 0, S ? S.maxM : 0, 'm');
+  const canSpend = S && S.points > 0 && !S.over;
+  $('skills').innerHTML = ATTRS.map(a => `<div class="attr ${a.id}"><h3 style="color:var(--${a.id})">${a.name}</h3><ul>${a.skills.map(([id, name]) =>
+    `<li><span>${name}</span><span class="lv">${S ? S.skills[id] : '–'}${canSpend ? `<button class="plus" type="button" data-skill="${id}" aria-label="Monter ${name}">+</button>` : ''}</span></li>`).join('')}</ul></div>`).join('');
+  $('skills').querySelectorAll('.plus').forEach(b => b.onclick = () => spend(b.dataset.skill));
+  $('xp').innerHTML = S ? `<span>Expérience ${S.xp} / ${XP_PER_POINT}${S.points ? ` · <span class="pts">${S.points} point${S.points > 1 ? 's' : ''} à dépenser</span>` : ''}</span><div class="xpbar"><i style="width:${S.xp / XP_PER_POINT * 100}%"></i></div>` : '';
+}
+
+function showStart() {
+  S = null; renderDossier(); $('agentName').textContent = 'Commissaire sans écharpe';
+  $('music').textContent = '♪ Aucune musique';
+  $('choices').innerHTML = '';
+  $('sceneTitle').textContent = `Prototype · ${ORDER.length} scènes`;
+  $('log').innerHTML = `<div class="start entry">
+    <p class="narr">Paris, 8 thermidor an II. La Terreur est à son comble, les charrettes roulent chaque jour vers l'échafaud. Dans la salle d'un comité de surveillance, un commissaire ouvre les yeux sur un plancher sale. Il ne sait plus qui il est.</p>
+    <p>Choisis le commissaire que tu seras. Ses compétences décident de ce qu'il remarque, de ce que ses voix intérieures lui soufflent et de ses chances aux dés (2d6 + niveau). Chaque test réussi rapporte de l'expérience ; tous les ${XP_PER_POINT} points, tu montes une compétence, ce qui rouvre les tests blancs ratés.</p>
+    <div class="archs">${ARCHETYPES.map((a, i) => `<button class="arch" type="button" data-i="${i}"><b>${a.name}</b><span>${a.desc}</span></button>`).join('')}</div>
+    <p class="note">Prototype. Le texte vient des mêmes fichiers de dialogue que le jeu lira. Pas de son pour l'instant : la bande-son originale reste à composer.</p>
+  </div>`;
+  $('log').querySelectorAll('.arch').forEach(b => b.onclick = () => newGame(ARCHETYPES[+b.dataset.i]));
+}
+
+document.addEventListener('keydown', e => {
+  if (!/^[1-9]$/.test(e.key) || e.target.tagName === 'INPUT') return;
+  const b = $('choices').querySelector(`button[data-n="${e.key}"]`); if (b && !b.disabled) b.click();
+});
+$('restart').onclick = showStart;
+showStart();
+</script>
